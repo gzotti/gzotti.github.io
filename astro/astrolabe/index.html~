@@ -1,0 +1,279 @@
+<HTML>
+<HEAD>
+<TITLE>WAA Astrolabium</TITLE>
+<META NAME="Author"      CONTENT="Georg ZOTTI">
+<META NAME="Description" CONTENT="Wooden astrolabe programmed in PostScript, made on Laser engraver">
+<META NAME="KeyWords"    CONTENT="astronomy, astrolabe, PostScript">
+</HEAD>
+<BODY>
+
+<p align="center">
+<a href="img/WAAstrolabe-big.jpg">
+   <img  alt="WAA Astrolabe" src="img/WAAstrolabe.jpg"/></a>
+<br/>
+<h1 align="center">WAA Astrolabium</h1>
+</p>
+
+
+(Deutsche Version <A HREF="#german">hier</A>)
+
+
+<P> I wanted to have an astrolabe from the time I saw one in my first astronomy book,
+around 1980.
+
+<P> In 1987, I acquired a cardboard model from the gift shop at
+Chicago's <a href="http://www.adlerplanetarium.org" >Adler Planetarium</A>.
+
+<P> In the late 1990s, my astronomical interest shifted to cultural
+aspects and the history of astronomy.  In the Peuerbach Museum,
+Austria, a nice exhibition about Georg Aunpeckh von Peuerbach shows
+many instrument replica made mostly by <a
+href="http://www.astrolabe.ch/welcome.aspx"> Martin Brunold</a>, which
+reawakened my interest in this field.
+
+<P> In late 2002, I found "astrolabe websites", many of
+them selling astrology software, but some, e.g. <a
+href="http://www.astrolabes.org/">astrolabes.org</a> really dealing
+with that ingenious instrument. Having no experience in metal work, I
+first just printed and made one astrolabe from <a
+href="http://www.autodidacts.f2s.com/astro/index.html"> Keith Powell's Java
+astrolabe</a>. This is a very nice set of programs, however, the
+printing quality did not suffice for me, so I decided to create my own
+instrument, which in its artistic implementation I dedicated to one of
+my astronomy clubs <A HREF="http://www.waa.at">(WAA)</A>.
+
+<P>I used the printer language PostScript for programming, to avoid
+problems with having to compile other languages on various
+platforms with different image drawing libraries. The resulting EPS
+files can be used in many graphics applications.
+Many configuration variables allow tweaking and tuning of
+many different aspects, e.g. you can set precession by adjusting a
+year value in the file header for the rete.
+
+<P> Originally only planned for printing on heavy paper, I used a
+chance to make a few instruments in plywood, using a laser
+engraver. In spring of 2003, a seminar on astrolabes was taking place
+in Vienna. Here I presented my work on May 3rd, 2003, and again at the
+<a href="http://www.waa.at/bericht/2003/11/20031108jt/bericht.html">
+WAA Annual Meeting </a>, where I received the club's <em>Alcyone Prize
+2003</em> for construction and production of the WAA Astrolabe.
+
+
+<P> <A HREF="#images">Jump to images</A>
+
+<HR>
+
+<a name="german">
+<H1>Hier in  deutscher Sprache... </H1>
+
+<p>1980 sah ich in meinem ersten Astronomiebuch ein Astrolabium und
+wollte sofort eines haben.
+
+<P>1987 konnte ich im <a href="http://www.adlerplanetarium.org" >Adler
+Planetarium</A>, Chicago, ein Kartonmodell erwerben.
+
+<P>In den sp&auml;ten 1990er Jahren wurde mein Interesse an diesem
+Instrument durch eine Veranstaltungs- und Ausstellungsserie zu Georg
+von Peuerbach wieder geweckt. Im Schlo&szlig; Peuerbach findet sich
+nun eine Dauerausstellung mit Astrolab-Nachbauten aus der Werkstatt
+von <a href="http://www.astrolabe.ch/welcome.aspx"> Martin Brunold</a>.
+
+<P>Im Herbst 2002 machte ich mich auf die Suche nach Astrolabien am
+WWW.  Einige gute sites, z.B. <a
+href="http://www.astrolabes.org/">www.astrolabes.org</a>, konnte ich
+finden, sehr erfreulich war <a
+href="http://www.autodidacts.evesham.net/astro/">Keith Powells
+Java-Astrolab</a> mit Druckm&ouml;glichkeit. Leider ist die
+Druckqualit&auml;t nicht besonders gut, und da beschlo&szlig; ich, selbst
+ein druckbares Astrolab zu entwickeln, das ich in der
+k&uuml;nstlerischen Ausf&uuml;hrung einem meiner Astronomievereine,
+der <A HREF="http://www.waa.at">Wiener Arbeitsgemeinschaft f&uuml;r
+Astronomie (WAA)</A>, gewidmet habe.
+
+<P>Als Programmiersprache kam hier die Druckersprache PostScript zum
+Einsatz, da ich ein vollst&auml;ndig auf dem Drucker exekutierbares
+Programm einfacher handhabbar finde als ein ausf&uuml;hrbares
+Programm, das f&uuml;r hochwertigen Druck ja ebenfalls PostScript erzeugen
+m&uuml;&szlig;te, und das auf mehreren Plattformen &uuml;bersetzt und gewartet
+werden m&uuml;&szlig;te. Die nun vorliegenden PostScript-Programme sind
+vielseitig ausdruckbar, so kann z.B. eine Tympan-Scheibe f&uuml;r beliebige
+geographische Breite gedruckt werden, indem die Breite am Dateianfang eingestellt wird.
+Durch Ver&auml;ndern einer Jahreszahl am Dateianfang kann sogar die Pr&auml;zession bei
+den Sternpositionen ber&uuml;cksichtigt werden. Der Drucker rechnet sich
+das Bild also selbst aus. Bei der Entwicklung in einer so ungew&ouml;hnlichen Sprache hilft es
+nat&uuml;rlich, wenn man in einer &auml;hnlichen Sprache (RPL) schon einmal ein
+gr&ouml;&szlig;eres Projekt verwirklicht hat (<a href="http://www.cg.tuwien.ac.at/~gzotti/hp/urania/index.html">
+Urania/48</a>).
+
+<P>Wer sich mit Astrolabien besch&auml;ftigt, kommt irgendwann auf den Begriff der <em>Ungleichen Stunden</em>.
+Bis zur Erfindung mechanischer Uhren war diese Art der Zeitangabe weit verbreitet.
+Der lichte Tag wurde in 12 gleiche Teile geteilt, die Nacht ebenfalls.
+Au&szlig;er zur Tag- und Nachtgleiche hatten nun die Tagstunden eine
+andere Dauer als die Nachtstunden. Die Erste Stunde begann mit Sonnenaufgang,
+die sechste Stunde endete zu Mittag (daher der Begriff "Siesta" in Spanien!).
+Diese Stundenlinien wurden auf dem klassischen Astrolabium als einfache Kreislinien
+durch je 3 zusammengeh&ouml;rige Zw&ouml;lftelteilungen der Wendekreise und
+des &Auml;quatorkreises dargestellt. Dies ist eine recht gute N&auml;herung bis etwa
+55&nbsp;Grad n&ouml;rdlicher Breite, bis zum Polarkreis verformen sich aber die "richtigen" Kurven
+zu S-Kurven, ja n&ouml;rdlich des Polarkreises k&ouml;nnte man
+die klassischen Linien gar nicht konstruieren, da ein Schnittpunkt wegf&auml;llt. Auf dem WAA-Astrolab
+sind diese Linien streng gerechnet, weshalb nun (erstmals?) auch nahe beim
+und sogar  n&ouml;rdlich des Polarkreises Tag und Nacht in je 12 gleich
+lange Teile geteilt werden. Wahlweise kann aber auch die klassische Dreipunkt-Methode
+eingestellt werden (oder auch beide im Vergleich). 
+
+<P>Urspr&uuml;nglich nur zum Drucken vorgesehen, konnte ich im
+Fr&uuml;hjahr 2003 einige Ger&auml;te mit Hilfe eines Lasergravierers
+aus Sperrholz herstellen. Diese Ger&auml;te pr&auml;sentierte ich am
+3. Mai 2003 im Rahmen der <a
+href="http://members.ping.at/astbuero/fach2003.htm">Internationalen
+Fachabende</a> des <a
+href="http://members.ping.at/astbuero/av.htm">&Ouml;sterreichischen
+Astronomischen Vereins </a> zum Thema Astrolabien.
+Auf der <a href="http://www.waa.at/bericht/2003/11/20031108jt/bericht.html">
+Jahrestagung 2003 der WAA</a> wurde mir f&uuml;r Entwicklung und Bau 
+des Astrolabs der <em>Alcyone-Preis</em> zuerkannt.
+
+<p> Falls Sie Interesse an einem derartigen Instrument haben, bitte <a href="mailto:gzotti@cg.tuwien.ac.at">schreiben
+Sie mir</a>. 
+
+<p>Es gibt 2 Modelle, alle zum Gebrauch auf der n&ouml;rdlichen Erdhalbkugel.
+Zu jeder Rete in Holz kommt eine Sternkarte auf Transparentfolie, die erg&auml;nzend
+unter die Rete plaziert oder im Austausch verwendet werden kann. 
+Die Daten sind f&uuml;r das Jahr 2000 gerechnet.
+
+<dl><dt>Standardmodell</dt><dd> Rete mit n&ouml;rdlichem Sternenhimmel, 
+Einlagebl&auml;tter f&uuml;r 28, 33, 38, 43, 48, 53, 58, 63 und 68&nbsp;Grad
+n&ouml;rdliche Breite sowie Universalhorizont.</dd>
+<dt>Kombimodell</dt><dd>bringt zus&auml;tzlich eine Rete des s&uuml;dlichen
+Sternenhimmels und Einlagebl&auml;tter f&uuml;r 13, 18, 23, 28, 33, 38, 43, 48
+und 53&nbsp;Grad n.B. sowie Universalhorizont f&uuml;r die S&uuml;d-Rete.
+(Nur wenige gebaut; ausverkauft)
+</dd>
+</dl>
+
+<p>Jedes dieser Modelle gibt es in 3 Ausf&uuml;hrungen der R&uuml;ckseite.
+Alle zeigen Gradskala zur H&ouml;henmessung am Au&szlig;enrand sowie
+konzentrische Kalender/Zodiak-Skalen.
+<dl>
+ <dt>Klassisch</dt><dd>Oberhalb der Mitte ein <em>doppelter Sonnenquadrant zur
+    Bestimmung der Ungleichen Stunde</em>, darunter ein klassisches <em>Schattenviereck</em>.
+    Innerhalb des Kalenderkreises eine Darstellung der Zeitgleichung in niedriger Ablesegenauigkeit.</dd>
+ <dt>Modern</dt><dd>Die Mitte dominiert ein <em>Diagramm zur Ermittlung der Zeitgleichung
+    in hoher Ablesegenauigkeit</em>. Der Sonnenquadrant ist weggelassen, das <em>Schattenviereck</em> ist
+    dem auf dem Peuerbach-Astrolab (1457) nachempfunden.</dd>
+ <dt>Universalastrolab</dt><dd>nach Azarchel bzw. Gemma Frisius. Dieses 
+    bietet auf der R&uuml;ckseite Kalenderkreise und ein Universal-Netz f&uuml;r 
+    Koordinatentransformation und weltweiten Einsatz, als Einlagebl&auml;tter kommen
+    Schattenviereck/Sonnenquadrant sowie Nautisches Quadrat hinzu, weshalb die H&ouml;henmessung
+    auf der Vorderseite durchzuf&uuml;hren ist. 
+</dd>
+</dl>
+
+<p>Auf Wunsch kann ich die Astrolabien auch f&uuml;r andere Zeiten
+(Pr&auml;zession) und Orte (ma&szlig;geschneiderte Horizont-Bl&auml;tter,
+S&uuml;dastrolabien mit gespiegelter Vorderseite) fertigen, jedoch nur mehr auf Karton/Overheadfolie
+gedruckt. Die Holz-Instrumente sollen ja etwas Besonderes bleiben und kein
+Massenprodukt werden.
+
+<p>K&uuml;rzlich (Nov. 2004) erhielt ich genauere Beschreibungen und sogar
+teilweise Konstruktionsanleitungen f&uuml;r die selteneren Universal-Astrolabien nach Rojas und
+de la Hire, hier werden die Beschreibungen eher rar! Ebenso erhielt ich Information zu Konstruktion und vor
+allem Anwendung einiger seltenerer Diagramme, die ich derzeit
+erg&auml;nze. Ob es Rojas und de la Hire-Instrumente in Holz geben wird, kann
+ich noch nicht sagen.
+<!--F&uuml;r weitere Hinweise bitte <a href="mailto:gzotti@cg.tuwien.ac.at">schreiben Sie mir</a>. -->
+
+<HR>
+
+<a name="images">
+
+<p align="center">
+   <img  alt="WAA Astrolabe" src="img/LaserCutting.jpg"/>
+<br/>
+<h3 align="center">Laser Engraving &amp; Cutting</h3>
+</p>
+
+<p align="center">
+   <img  alt="Astrolabe Parts" src="img/WAAstrolabe-parts.jpg"/>
+<br/>
+<h3 align="center">Parts of the WAA Astrolabe</h3>
+</p>
+
+<p align="center">
+   <img  alt="Astrolabe Parts" src="img/Back-throne.jpg"/>
+<br/>
+<h3 align="center">Throne with Pleiades (WAA logo)</h3>
+</p>
+
+<p align="center">
+   <img  alt="Astrolabe Parts" src="img/Back-center.jpg"/>
+<br/>
+<h3 align="center">Unequal Hours</h3>
+</p>
+
+<p align="center">
+   <img  alt="Astrolabe Parts" src="img/Back-shadowsquare.jpg"/>
+<br/>
+<h3 align="center">Shadow Square</h3>
+</p>
+
+<p align="center">
+   <img  alt="Astrolabe Parts" src="img/Back-eqtm.jpg"/>
+<br/>
+<h3 align="center">Equation of Time</h3>
+</p>
+
+
+<p align="center">
+<a href="img/WAAstrolabe-back-big.jpg">
+   <img  alt="WAA Astrolabe" src="img/WAAstrolabe-back.jpg"/></a>
+<br/>
+<h3 align="center">Back Sides</h3>
+Both designs show concentric calendar circles (the excentric circles are also available,
+but not for the wooden instruments). The left side instrument is of a more modern design,
+the big diagram in the center is the equation of time in high resolution, around it, in the lower half,
+is a squashed Shadow Square as shown by G. v. Peuerbach.
+The right side instrument features the classical elements: Shadow Square, Unequal Hours diagram,
+and also a ring with equation of time with less resolution.
+
+</p>
+
+<p align="center">
+   <img  alt="Universal Astrolabe, Front" src="img/Univ_Front_UH.jpg"/>
+<br/>
+<h3 align="center">Universal Astrolabe, Front, with Universal horizon. Standard
+horizons as for the standard instruments are also provided.</h3>
+</p>
+
+<p align="center">
+ <a href="img/Univ_Front_QN2.jpg">
+   <img  alt="Universal Astrolabe, Nautical Square" src="img/Univ_Front_QN1.jpg"/></a>
+<br/>
+<h3 align="center">Universal Astrolabe, Front, with Nautical Square. 
+Click on image for detail.
+</h3>
+</p>
+
+<p align="center">
+ <a href="img/Univ_Back_North.jpg">
+   <img  alt="Universal Astrolabe, Back" src="img/Univ_Back_Ecl.jpg"/></a>
+<br/>
+<h3 align="center">Universal Astrolabe, Back.
+The <it>brachiolus</it> (arm) can be used for coordinate transformations.
+(Click on image for detail view.)
+</h3>
+</p>
+
+
+
+
+<HR>
+<p align=center>Back to <a href="../index.html"> Home page </A>
+
+<hr width=70%> <p align=center><it>&copy; 
+<a href="mailto:gzotti@cg.tuwien.ac.at">Georg Zotti</a>, 
+2003-05-28, last changed 2006-09-05
+
+</BODY>
+</HTML>
