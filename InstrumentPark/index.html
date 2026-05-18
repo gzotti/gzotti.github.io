@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | Stellarium/Unity Instrument Park</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="TemplateData/UnityProgress.js"></script>  
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/InstrumentPark.json", {onProgress: UnityProgress});
+    </script>
+  </head>
+  <body id="body">
+  
+  <h1>A Park of Astronomical Instruments</h1>
+  <h2>Author: Georg Zotti</h2>
+  <h2>Date: August 11th, 2018</h2><!-- UNITY_CUSTOM_XXX allows variables which you can fill in the PlayerSettings inspector -->
+  
+ <div class="wrapper">
+
+  <div class="gamebox">
+   <div class="webgl-content">
+      <div id="gameContainer" style="width: 640px; height: 480px"></div>
+      <div class="footer">
+        <div class="webgl-logo"></div>
+        <div class="fullscreen" onclick="gameInstance.SetFullscreen(1)"></div>
+        <div class="title">Stellarium/Unity Instrument Park</div>
+      </div>
+    </div><!-- end of webgl-content -->
+  </div><!-- end of gamebox -->
+  
+  <div class="text">
+  <p>This page is a technology preview for <a href="https://www.seac2018.org/program.html">SEAC2018</a>. </p><p>
+  In a park landscape, you can explore a collection of astronomical instrument replica which can be moved and operated by mouse or cursor keys. 
+  Seeing these instruments in action should enable us to better understand their operation. </p>
+  <ul><li>Several of Ghazan Khan's instruments from the 2nd phase of Maragha observatory (ca. AD1300), Iran [1,2,3]:
+           <dl>
+		   <dt>#2: The Large Triangle</dt> <dd>A large triangle made of straight copper rules movable in azimuth with an alidade, likewise made from copper. The altitude value read on the scale had to be converted to an angle by a lookup in a <i>zij</i> (astronomical table). </dd>
+		   <dt>#3: The ring with alidade</dt><dd>While Ghazan wanted to build instruments from long straight rods only, here a wooden alidate bar rotates on an iron pillar and is enclosed by an iron ring with azimuth scale. The alidade has a chord bar to read the altitude. </dd>
+		   <dt>#7: The Meridian Square</dt><dd>A square with alidade mounted in the corner. This instrument has been described in Europe about 100 years later by Georg von Peuerbach. </dd>
+		   <dt>#8: The Rotating Square</dt><dd>A square with alidade mounted in the corner, attached on a pillar inside a square. 
+		                                       Such an instrument has later been used and described in Europe by Tycho Brahe. </dd>
+     </dl></li>
+      <li>Al-Khujandi's Fakhri Sextant, built in Rayy, Iran, in AD994 [4]. As a sextant, we can observe the Solar noon passage as long as the sun is higher than 30 degrees. In this web version, we unfortunately cannot observe winter solstice noon transit, because it is too low.  However, the instrument inspired the creation of the enormous</li>
+	  <li>Samarqand Observatory of Ulugh Beg, around AD1420 [4]. We (Mohammad Muzaffari and Georg Zotti) will present especially the movable cart, or <i>cursor</i> which al-Kashi has proposed in a manuscript and which obviously has been used here. </li>
+	  <li>Vienna <a href="https://web.astroverein.at/wiener-sterngarten">Sterngarten (Star Garden)</a>, the "Open-Air Planetarium" of the Austrian Astronomical Society built AD1997.</li>
+  </ul>
+  
+  <h3>Short usage guidelines</h3>
+  <p>Walk around with cursor or WASD keys. Your browser warns you that the document takes over control of the mouse cursor. 
+  Approach an instrument. When mouse cursor is invisible, press X to show it.  Follow on-screen instructions how to interact with the instrument. 
+  Usually, keys +- change altitude, /* change azimuth (where possible), and while looking through, the cursor keys act as expected. 
+  Use keys 1, 2, 3, ... 0 to select a sky background. These skies have been prepared with <a href="https://stellarium.org">Stellarium</a>.
+  </p>
+  
+  <h3>Technical background</h3>
+  <p>This demonstrates the simplest way of interfacing the <a href="https://unity3d.com">Unity3D game engine</a> to Stellarium. Other ways work on Windows PCs only and include a working connection to a running instance of Stellarium for even closer, real-time interaction. The advantage of this live connection should be clear: If set up properly, you will get the correct sky for your nice Unity landscape. Contact me for possible applications (funded projects preferred!).
+  </p><p>
+  Nice eye candy: Observe how the primary grass texture of the ground changes from green grass to a snowy winter landscape or summer-dry grass as required by the respective skybox date. Also observe the reflected sky in the pond next to the Sterngarten. 
+  </p><p>
+  Nice ear candy: I have placed a few birds into the forest. (Actually their voices only :-). And listen to your steps deep in the observatory tower.
+  </p>
+   
+  <h3>References</h3>
+  <ol>
+	<li>Georg Zotti and S. Mohammad Mozaffari. Ghazan Khan’s Astronomical Instruments at Maragha Observatory. 
+	    In Luisa Pigatto and Valeria Zanini, editors, Astronomy and its Instruments before and after Galileo, Padova, 2010. CLEUP. 
+		Proceedings of the Joint Symposium International Astronomical Union - INAF Osservatorio Astronomico di Padova, Italy,
+        held in Venice, San Servolo Island, Italy, 28 September – 2 October 2009.</li>
+	<li>S. Mohammad Mozaffari and Georg Zotti. Ghazan Khan’s Astronomical Innovations at Maragha Observatory. Journal of the American Oriental Society, 132(3):395–425, July–September 2012.</li>
+	<li>S. Mohammad Mozaffari and Georg Zotti. The Observational Instruments at the Maragha Observatory after AD 1300. Suhayl, 12:45–179, 2013.</li>
+	<li>S. Mohammad Mozaffari and Georg Zotti. A New Light on the Central Instrument of the Samarqand Observatory. Proc. SEAC2018, in preparation.</li>
+  </ol>
+  
+  </div>  <!-- end of text -->
+
+</div> <!-- wrapper -->	
+	
+	<p>Page created on August 11th, 2018 by Georg Zotti. Moved to Github 2026-05-19<br/>
+	This page does not set any cookies or other means of user tracking. </p>
+  </body>
+</html>

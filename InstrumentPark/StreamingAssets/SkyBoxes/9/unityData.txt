@@ -1,0 +1,42 @@
+Current Landscape Name:GE_Sterngarten_Parkbank
+Location longitude: 16.25
+Location latitude: 48.20000076293945
+Location altitude: 280
+Location name: Unity3D, UnityLand
+Location planet: Earth
+Location local-sidereal-time: 19.160639435774925
+Location Bortle Index: 1
+North panel luminance: 1
+East panel luminance: 1
+South panel luminance: 1
+West panel luminance: 1
+Top panel luminance: 1
+Bottom panel luminance: 1
+Stellarium Skybox lighting data:
+Vertical FoV: 90
+Horizontal FoV: 115.989233583833
+Date (UTC): 2018-08-12T20:39:39
+Date: 2018-08-12T22:39:39
+JD: 2458343.360877176
+Sun Azimuth: 323.8180563734435
+Sun Altitude: -19.704623862361025
+Sun Magnitude: -26.71343231201172
+Sun Magnitude (after extinction): -26.161174774169922
+Sun Longitude: 140.08993690647543
+Sun Size: 0.5261278442077388
+Moon Azimuth: 303.38429352956746
+Moon Altitude: -14.562223788029886
+Moon Phase: 0.0308067686855793
+Moon Phase angle: 159.78232572637708
+Moon illumination: 3.08067686855793
+Moon Magnitude: -6.517341136932373
+Moon Magnitude (after extinction): -5.71940803527832
+Moon Longitude: 160.16614088532725
+Moon Size: 2.189157023909123
+Venus Azimuth: 277.07420087992415
+Venus Altitude: -10.701091552878756
+Venus Magnitude: -4.413506507873535
+Venus Magnitude (after extinction): -3.2183618545532227
+Venus Longitude: 185.9321410377159
+Atm. Luminance: 0.00025087801623158157
+Landscape Brightness: 0

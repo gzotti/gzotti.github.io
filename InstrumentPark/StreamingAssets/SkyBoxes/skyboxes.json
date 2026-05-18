@@ -1,0 +1,13 @@
+{
+{ "dir" : "1", "name" : "spring noon" }
+{ "dir" : "2", "name" : "spring evening" }
+{ "dir" : "3", "name" : "spring evening with figures" }
+{ "dir" : "4", "name" : "summer solstice" }
+{ "dir" : "5", "name" : "summer solstice with figures" }
+{ "dir" : "6", "name" : "winter solstice" }
+{ "dir" : "7", "name" : "winter solstice with figures" }
+{ "dir" : "8", "name" : "summer night" }
+{ "dir" : "9", "name" : "summer night with figures" }
+{ "dir" : "0", "name" : "summer night AKARI (IR survey)" }
+{ "dir" : "live", "name" : "live/refreshing sky" }
+}
