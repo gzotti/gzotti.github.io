@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "https://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="globes.css" rel="stylesheet" type="text/css">
+<meta name="robots" content="noindex, nofollow">
+<meta name="publisher" content="Georg Zotti">
+<meta name="Content-Language" content="de">
+<meta name="Generator" content="Georg Zotti">
+<meta name="copyright" content="Georg Zotti">
+<title>VIRTUAL GLOBE GALLERY</title>
+</head>
+<body>
+<h1 align="center">Virtual Globe Gallery</h1>
+<h2></h2>
+<p>
+In mid-2010 I wanted to know more about texture mapping in Google
+Sketchup. As simple practical example, I decided to create a sphere on
+which a texture map of a globe can be placed. Several of those maps
+are available online in the form of globe gores, which had been
+printed in previous centuries on papers which were physically applied
+onto real globes.
+</p><p> 
+The first step therefore was an import plugin for Sketchup. I
+developed an input format (.glb) to specify longitude/latitude and
+texture coordinates for vertices on the sphere. The sphere is split
+into lots of small flat patches over which the image texture is draped
+patch by patch. If two patches share a corner that lies inside the
+texture image, you only have to declare it once, and the texture will
+appear to run smoothly around the point.  The mesh, i.e. the
+definition of which vertices form which triangle or quad, is also
+specified in the file, so I could now just import a fully textured
+globe into Sketchup. An added benefit is that the areas around the
+poles look better than that of a sphere with the usual texture
+mapping, where an equirectangular map is wrapped around.
+</p><p>
+The limitation of this approach of course is the existence of a
+coordinate grid in the globe gores. Its resolution also usually
+defines the tesselation quality of the sphere, you may compare the
+faceted look of the Mercator globes compared to the much smoother
+appearence of Coronelli's 5-degree-grid globes. If you have real globe gores, you can overlay 
+a polyconic mesh. 
+</p>
+<p>It is not necessary, though, to have globe gores designed to be
+applied onto spheres. You can put other maps onto the sphere, again,
+it helps to have a coordinate grid! For instance, there are
+Renaissance "world maps" illustrating Ptolemy's Geographia using some
+double-cone projection, which will display approximately as quart-spheres.
+</p>
+<p>
+Getting the texture coordinates just by reading the pixel coordinates
+in an image editing application and typing into the .glb file turned
+out way too cumbersome, so after searching the Web and some further
+programming I am using a simple HTML/javascript file which provides
+mouseclick coordinates, which I paste into the .glb file. Entering the coordinates
+for a globe now takes less than two hours or so, depending on grid resolution.
+</p><p>
+Having a globe in Sketchup is fine, but what to do next? Sketchup Pro
+comes with an OBJ exporter, and there are also 3rd-party exporters for
+Sketchup Free, however, the OBJ format is simple enough to directly
+create it. The Sketchup plugin uses the Ruby programming language, so
+creating a set of standalone Ruby scripts to create and play with
+virtual globes seemed natural. The script, glb2obj, now creates OBJ directly.
+</p><p>
+Another idea was to re-project the texture patches onto a single map of
+the world. There is a Ruby extension using ImageMagick, which I am
+using to create equirectangular maps which could in principle be used
+as standard texture maps for spheres - however, patching direcly
+provides better results. The full 2D maps can however be compared more easily. 
+Of course I am aware of "professional" solutions using typically
+proprietary and expensive GIS software, which may however provide an
+even better job if the scanned paper was heavily distorted and you
+need some arbitrary rubber-banding in between the grid points.
+</p><p>
+The final question was, how to present the globes? OBJ can be
+displayed in Meshlab, but many people won't even touch such a program.
+So, an online solution seemed best.   There are
+some commercial packages for this, but finally I found what I needed:
+an  <a href="https://bitbucket.org/doeke/webgl-model-viewer/src" target="_blank">OBJ object viewer</a> 
+for the upcoming standard for 3D graphics on the Web, WebGL! 
+I had to make some slight modifications, but now
+you can enjoy my globes whereever you are. The only thing (and here,
+sorry, you may have to install new things!) is that you need a
+WebGL-capable system, consisting of, typically, post-2007 hardware, 
+true 3D hardware support (NVidia and ATI/AMD should all work, and
+Intel HD2000/HD3000 as well. Intel GMA950 or the Atom/GMA3150 netbook
+platform are not usable, sorry!), recent drivers, and a good web browser.
+On Windows, recent versions of Firefox, Google
+Chrome or Opera are capable, on a Mac, Safari does the trick, on Linux
+at least Firefox should be available. Heck, it even works on my Android phone!
+</p>
+
+<p style="text-align:center">
+(c) 2011 Georg Zotti - Last changed on 2011-12-31
+</p>
+</body>
+</html>

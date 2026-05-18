@@ -1,0 +1,77 @@
+<!doctype html>
+<html><head>
+<!--
+Copyright (c) 2011 Doeke de Wolf
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+  <meta charset="utf-8">
+  <title>Model viewer</title>
+	
+	<!--
+	Url parameters:
+	obj: obj file path (required)
+	tex: color texture file path (png or jpg, not tga) // GZ: NO MORE!
+	spec: spec texture file path                       // GZ: NO MORE!
+	bg: model viewer background color (default #444)
+	
+	example: /modelviewer.hmtl?obj=/models/cube.obj&tex=/models/cube.jpg&bg=000
+	-->
+	
+	<script src="js/glge-mini.js"></script>
+	<!--script src="js/glge.js"></script-->
+	<script src="js/modelviewer.js"></script>
+	<style>
+		body, html, #modelviewer {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			width: 100%;
+			height: 100%;
+			display: block;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			font-family: arial, sans-serif;
+		}
+		#instructions, #statustext {
+			display: block;
+			color: #fff;
+			font-size: 12px;
+			position: relative;
+			height: 18px;
+			lineheight: 18px;
+			top: -18px;
+			margin: 0 5px;
+			paddding: 0;
+			white-space: pre;
+		}
+		#statustext {
+			float: right;
+		}
+	</style>
+	
+	
+</head><body onload="modelviewer()">
+
+	<canvas id="modelviewer" ></canvas>
+	<p id="statustext"></p>
+	<p id="instructions">Click and drag to rotate object, shift + drag to pan, and scroll or ctrl + drag to zoom. </p>
+	
+</body></html>
