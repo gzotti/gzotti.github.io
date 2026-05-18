@@ -1,0 +1,143 @@
+/* CSS for ASTROSIM website
+(c) 2009 Georg Zotti, VIAS
+Parts based on FWF.css
+*/
+
+
+
+/* Markup for site navigation (left panel) */
+
+div.top { margin:6px; padding:0; height:170px;  background-color:#000000;
+       font-family: Helvetica, Arial, sans-serif;
+       background-repeat:no-repeat; 
+}
+body.nav { margin:0px; padding:0; height:500px;  background-color:#000000;
+       font-family: Helvetica, Arial, sans-serif;
+       /*background-image:url(img/fenster_korr-250-nav_V2.jpg); background-repeat:no-repeat; */
+}
+
+
+.nav  { font-family: Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+        font-weight: bold; 
+        color: white; 
+
+}
+
+/*div.nav  p:first-letter { font-size:120%; color:red }*/
+
+div.nav { margin:0px; padding:0; height:697px; background-color:#000000;  /*background-color:#776F58;*/
+       font-family: Helvetica, Arial, sans-serif;
+       background-image:url(img/fenster_korr-250-nav_V2.jpg); background-repeat:no-repeat; 
+}
+
+
+div.nav ul {position:relative; top:10px;         font-weight:bold;  }
+div.nav ul  ul {position:relative; top:0px;         font-weight:normal;  }
+div.nav ul li {position:relative; top:5px; left:-12px; font-size: 14pt; line-height:180%; }
+div.nav ul ul li {position:relative; top:7px; left:-38px; font-size: 12pt; line-height:150%; }
+div.nav * a:link    { font-weight:inherit; font-size:inherit; color:white; text-decoration:none; }
+div.nav * a:visited { font-weight:inherit; font-size:inherit; color:silver; text-decoration:none; }
+div.nav * a:focus   { font-weight:inherit; font-size:inherit; color:red; text-decoration:underline; }
+div.nav * a:hover   { font-weight:inherit; font-size:inherit; color:yellow; text-decoration:none; }
+div.nav * a:active  { font-weight:inherit; font-size:inherit; color:lime; text-decoration:underline; }
+
+div.logobox {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 7pt;
+	color: #333;
+	background-color: #FFF;
+        border:2px solid #66a;   
+        padding:4px; 
+        overflow:hidden;
+        position: absolute; 
+        bottom: 2px;  
+        margin-left: 27px;
+        margin-right: auto;
+        width:175px; height:55px;         
+}
+
+a.language-switch:link {color:yellow; font-weight:bold; }
+a.language-switch:visited {color:yellow; font-weight:bold; }
+a.language-switch:focus {color:lime; font-weight:bold; }
+a.language-switch:hover {color:lime; font-weight:bold; }
+a.language-switch:active {color:red; font-weight:bold; }
+
+body { margin:6px;  background-color:#FFF   ;
+       font-family: Helvetica, Arial, sans-serif;
+}
+em { font-variant:italic; }
+.name { font-variant:small-caps; }
+/*dl dd ul    { list-style-type:disc;  }
+*/
+ul li { font-family: Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+        font-weight:normal;
+ }
+
+
+dl dt { font-family: Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+        font-weight:bold;
+        line-height:240%;
+ }
+
+dl dt a { font-family: inherit;
+	font-size: inherit;
+        font-weight:inherit;
+ }
+
+dl dd { font-family: Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+        font-weight:normal;
+ }
+
+
+td {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+}
+
+
+.minitext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 7pt;
+	color: #999999;
+}
+
+.minitext-schwarz {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 7.5pt;
+	color: #000000;
+}
+
+
+
+a, a:hover {
+	font-family: Arial, Helvetica, sans-serif;
+	color: #003366;
+	text-decoration : underline;
+	font-weight: normal;
+	font-size: 11pt;
+}
+
+a:visited {
+	font-family: Arial, Helvetica, sans-serif;
+	color: #773366;
+	text-decoration : underline;
+	font-weight: bold;
+	font-size: 11pt;
+}
+
+
+dl * a { font-family: inherit;
+	font-size: inherit;
+        font-weight:bold;
+ }
+
+div.timestamp { font-size: 80%;
+                text-align: center;
+                position: relative; 
+                bottom: 8px;  
+                top: 20px;
+ }

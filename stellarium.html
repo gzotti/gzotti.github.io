@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="gzotti.css" rel="stylesheet" type="text/css">
+<link rel="SHORTCUT ICON" type="image/x-icon" href="./favicon.ico"/>
+<link rel="icon" type="image/x-icon" href="./favicon.ico"/>
+<meta name="robots" content="noindex, nofollow">
+<meta name="publisher" content="Georg Zotti, Universität Wien">
+<meta name="Content-Language" content="de">
+<meta name="Generator" content="Georg Zotti">
+<meta name="copyright" content="Georg Zotti, Universität Wien">
+<title>Georg Zotti: Stellarium</title>
+</head>
+<body>
+<h1 align="center"><!--img src="img/ASTROSIM.png" alt="ASTROSIM" width="40%"--></h1>
+<p style="text-align:center">
+  <!--img src="img/14sunrise4000puch-1024.jpg" width="80%" alt="Sonnenaufgang über KGA Puch"-->
+</p>
+
+
+<h1>Stellarium </h1>
+
+<p>While working on <a href="https://astrosim.univie.ac.at" target="_blank">ASTROSIM</a> I found
+the <a href="https://www.stellarium.org" target="_blank">Stellarium</a>
+desktop planetarium, a beautiful program that can simulate the night
+sky. One especially useful feature are panorama horizons which, if
+properly configured, can simulate the real landscape horizon also on a
+potentially historically relevant site.
+
+<p>By 2010 I had joined the developing team and helped improving astronomical accuracy and some software issues:
+  <ul><li>Bugfixing the "oldstyle" landscapes: Now you can use the panoramas as measurement images for accurate observation planning or also archaeoastronomical analyses. (for V0.10.6)</li>
+	<li>refraction and extinction (2011, with Fabien; corrections for 0.13.1.)</li>
+	<li>Minor contributions to &Delta;T (early 2013, most work by Allan Johnson, Alex Wolf and Victor Reijs). Some corrections for its correct application sequence for 0.14.</li>
+	<li>Most of the German translations at least supervised since about 2011.</li>
+	<li>Differentiated symbols and colors for the DSO objects (cannot remember when we introduced it). Introduced Dark Nebulae (Barnard) and proportional symbols in 0.13.3, with minor improvements for 0.14. </li>
+	<li>Landscape additions (2013-10, since V0.13.0)
+	  <ul>
+		<li>A new "polygonal" landscape type (compatible to Cartes du Ciel). The presumably measured horizon polygon can even be mixed with the photo landscapes.</li>
+		<li>Reduction of texture memory footprint for spherical landscapes by allowing to clip away the sky part above the highest point on the horizon.</li>
+		<li>Addition of fog for the spherical and fisheye landscapes</li>
+		<li>Addition of a new "light pollution" light layer for all landscape types</li>
+		<li>Landscape can be polled for transparency at a particular direction. This will be used starting with 0.14, for landscape illumination on sites without atmosphere, and could be further used for accurate predictions of sunrise etc. on the respective landscape. </li>
+		<li>Landscape gazetteer function (indicators for mountain peaks or similar landscape features) for 0.14.</li>
+	  </ul>
+	<li><a href="https://qt-project.org/wiki/Cross-compiling-Mesa-for-Windows" target="_blank">Building the MESA opengl32.dll library</a> 
+	  as software-OpenGL 2.1 replacement library for incapable hardware (2013-12, for developing V0.13)</li>
+	<li>A first implementation of comet tails (2013-12, for V0.13). Speedup (allowing to have hundreds of comets active) for V0.13.1, and improvements in visual quality for 0.13.2.</li>
+	<li>Several steps of improvements for orbits of minor bodies of the Solar system</li>
+	<li>Auto-detect user location by querying an IP/address lookup service at startup (since 0.13.1).</li>
+	<li>Extinction for the Milky Way (since 0.13.2). Includes a better Milky Way image provided by Fabien. Also improvements in visibility balance when the Moon interferes (for 0.14).</li>
+	<li>Simulation of the Zodiacal Light, sunlight reflected by interplanetary dust (since 0.13.2).</li>
+	<li>The biggest development certainly is the Scenery3D plugin,
+	  developed with the help of students at my
+	  <a href="https://www.cg.tuwien.ac.at" target="_blank">former
+		institute</a>.  It allows loading a 3D landscape into the scene, so
+	  that you can walk around and find possible astronomical
+	  alignments. This is a perfect tool for archaeoastronomy, but may also
+	  be useful just for finding the best spot in your garden if you want to
+	  avoid obstructions by trees or your neighbor's house. While 
+	  major changes in the rest of Stellarium's code done in 2012 
+	  prevented integration in the 0.12 series, 
+	  TU student Florian Schaukowitsch finally completed the task, and Scenery3D is available since 0.13.3.
+	</li>
+	<li>ArchaeoLines plugin (since 0.13.3), providing declination lines for solstices, equinox, lunistices, a planet, selected object etc. </li>
+	<li>Accurate precession of the Equinoxes. Implemented an accurate long-time model that even shows limitations of the VSOP87 planetary solution (since 0.14).</li>
+	<li>Nutation (IAU-2000B series), the short-period wobbles of Earth's axis mostly due to perturbations by Moon, Sun and planets (since 0.14).</li>
+	<li>Supervise creation of RemoteControl plugin (Florian) which allows control of Stellarium via web browser (0.15). Ongoing maintenance of this.</li>
+	<li>Reactivate video playing functionality (for 0.15)</li>
+	<li>Lead editor of the Stellarium User Guide (since 0.15)</li>
+	<li>GPS query (for 0.16)</li>
+	<li>Fixes for Topographic correction and light time correction of the sun (esp. crucial for eclipse simulation; for 0.16)</li>
+	<li>Supervise creation of RemoteSync plugin (Florian) which allows synchronizing Stellarium instances (0.16)</li>
+	<li>Calendars plugin (since 0.20.4)</li>
+	<li>Planet axes, following IAU WGCCRE recommendations (most visible: accurate lunar libration) (0.21.0)</li>
+	<li>OnlineQueries plugin (since 0.21.1)</li>
+	<li>Annual aberration (0.21.2)</li>
+	<li>Several Planet magnitude algorithms</li>
+	<li>Martian polar caps (0.22.0)</li>
+	<li>Port diagrams from QCustomPlot to QtCharts (0.22.1)</li>
+	<li>Upgrade to Qt6 (V1.0 a.k.a. 1.22.3)</li>
+	<li>Functional improvements to Oculars and TelescopeControl plugins</li>
+	<li>uncounted smaller bugfixes, refactoring and code improvements</li>
+	<li>A photo (manually guided in 2004, taken on color slide film) of &eta; Carinae (from the 2002 Namibia tour on <a href="https://homepage.univie.ac.at/Georg.Zotti/astro/na2002/img/APhotoShow.html"> this </a> page!) (used 0.12.1-0.18.3)</li>
+	<li>The image of the Solar corona (assembled from photos of the Total Solar Eclipse observed 2008-08-01 in Mongolia) (2015 or earlier?)</li>
+	<li>Ongoing testing against records of historical observations</li>
+</ul>
+
+
+<p>Another neat trick: <a href="php/panoCam.php">Creating panoramas from Google Earth.</a></p>
+</p>
+
+<hr width=70%> <p align=center><it>&copy; <a href="mailto:Georg.Zotti@univie.ac.at">Georg Zotti</a>, Wien.
+</BODY>
+
+
+</body>
+</html>

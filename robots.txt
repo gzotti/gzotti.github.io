@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: Me1k2oo9
+Disallow: D0wn10ad
+Disallow: Photos
+Disallow: Archaeoastronomie
+Disallow: php
+Disallow: astro/KGA
