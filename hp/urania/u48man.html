@@ -1,0 +1,1133 @@
+<html>
+<head><title>Urania/48 - Online Manual </title></head>  
+
+<body bgcolor=#405048 text=#dddddd link=#33ffdd vlink=#ffc3ff>
+
+ <h1 align=center><b><u> Urania/48</u></b></h1>
+ <h3 align=center><b>The Astronomical Companion</b></h3>
+ <h5 align=center> for the</h5>
+ <h3 align=center><b> HP-48SX/GX</b></h3>
+ <h4 align=center><b>Pocket Calculator</b></h4>
+                               
+<p><hr><p>
+<ul><lh>You may jump directly to the following sections:
+<li><a href="#Preface">Preface</a>
+<li><a href="#Installation">Installation</a>
+<li><a href="#Introduction">Introduction</a>
+<li><a href="#Urania48">Urania/48</a>
+<li><a href="#Moon48">Moon/48</a>
+<li><a href="#AstroTools48">AstroTools/48</a>
+<li><a href="#Saturn48">Saturn/48</a>
+<li><a href="#RNGC48">RNGC/48</a>
+<li><a href="#Auxiliary">Auxiliary programs</a>
+<li><a href="#Variables">Variables</a>
+<li><a href="#Appendix">Appendix: Literature, Acknowledgements</a>
+<li><a href="index.html">Back to Urania/48 Home Page</a>
+</ul>
+
+<p><hr><p>
+
+<h2 align=center><a name="Preface">Preface </a></h2>
+
+
+<p>The  size and computing power of the HP48 allow to make it the ideal  tool  for calculations somewhere far off  civilization, desktop PCs and power lines, under a dark night sky. Urania/48
+makes it unnecessary for the observer to look up positions  in printed  planetary  ephemerides or look into tables of data transformation, all this and much more is calculated  to  good accuracy using modern theories of planetary motion.<br>On  the  other  hand, Urania/48 cannot replace star  maps  and
+atlases or good PC programs, which can of course keep far more data and can find them faster.
+<br>Basic knowledge of astronomical terminology will be required to use Urania/48.
+
+<p>A  sentence about this online manual: It is a HTML version of parts of the printed manual included with the registered version. I am sure I have  missed some special characters while changing from DTP to HTML, sorry for that. The manual is more detailed in many aspects. It is assumed that the user is familiar with the HP48 and its usage, as well as with astronomical terminology. 
+
+<p><hr><p>
+
+ <h2 align=center><a name="Installation">Installation</a></h2>
+
+<p>The  libraries  have ID numbers in the range  1600...1610.  <em>To avoid conflicts between software, please make sure you have no other libraries with the same IDs installed.</em>
+Installing  Urania/48 requires at least a 128kB RAM  card.  
+The libraries  are  installed as usual, although their  sizes  may demand some preparations:
+<ol>
+<li> Make sure you have at least one port memory bank available on your RAM card(s).
+<li> Make sure you have enough free system memory. Make a backup and reset the calculator, if necessary.
+<li> Upload the desired library onto your HP48.
+<li> Recall the library onto the stack and purge the original variable.
+<li> Select a port number of a free port and <b>STO</b> the library there. The  core  libraries  are U48AASHA.LIB and URANIA48.LIB. You should also upload U48AUX.LIB if you want to use the data managing programs for sites, comets and asteroids. Optionally, load U48MOON.LIB and store it in a  port  of your choice. If you have the HP-48GX and  a  large (512kB or more) RAM card in slot 2, you can also upload up to three more libraries which allow you to access the data of the Revised New General Catalogue: U48RNGC1.LIB, U48RNGC2.LIB and U48RNGC3.LIB. The first and smallest contains the most important data: Position, magnitude, type, constellation.  The other  two  contain  the  original  encoded  Dreyer  or   RNGC descriptions, respectively. Only U48RNGC1.LIB is included with the evaluation version.
+<li> Switch  the  calculator off, then back  on.  A warmstart brings  the libraries into action. Note that AARes/48 and  the RNGC/48 libraries don't autoattach to the home directory: They are  only  used  by  Urania/48, so there is  no  need  to  add additional  labels to the library menu. If  you  like,  do  it manually:  Type, e.g., <tt>1602 ATTACH</tt> to include a <b>RNGC</b>  label into the library menu.
+<li> Select a directory of your choice, e.g. ASTRO, and  enter it. Now  you may upload the data files COMET.DAT and ASTEROID.DAT, as  well  as the auxiliary programs SITE, its list  of  sites, SITE.DAT,  and  DATA.  These allow to  manage  your  sites  of observation  and  add or delete data of comets  and  asteroids right  on  the machine, instead of having to edit the cometary and  asteroid data on a PC and uploading them. (You  might  of course prefer the PC method.) SITE and SITE.DAT are not really necessary  in low memory conditions, but DATA is very  helpful for  the  often  changing comets. You might edit  the  program source a bit to make the programs smaller, or delete some entries from the data lists. Run SITE to select or enter  your site  of  observation. Your directory should now contain  four variables: <tt> Long, Lat, Alt, Zone</tt>. See the table below for their contents.
+Should you enter a new site in SITE, enter the time zone without daylight saving time,  this will be asked while selecting the site. If you prefer not to use SITE, enter these four variables manually, or Urania/48 will refuse to work. To allow Jupiter's Great Red Spot to appear in the program, it needs the jovigraphic longitude in the variable <tt>GRS.DAT</tt>.  In 1996, a good value is 51. 
+There  are more variables, called  <tt>Press, Temp, (Delta)T.USR, (epsilon).USR, DSTAR.DAT, VSTAR.DAT</tt> and <tt>DSO.DAT</tt>. A detailed description of these will be given later.
+</ol>
+
+<table cols=5>
+<tr><td><b>Variable name</b> <td> <b>Values </b><td><b>Format </b><td><b>Contents</b><td><b>Example</b>
+<tr><td>Long     <td>-180..360  <td>DD.ddd   <td>Geogr. Longitude east of Greenwich<td> Vienna: +16.385
+<tr><td>Lat        <td>-90..90     <td>DD.ddd   <td>Geogr. Latitude (North=positive)<td>Vienna: +48.212
+<tr><td>Alt         <td>-397..?     <td>m.ddd     <td>Altitude (Meters)<td> Vienna: 194
+<tr><td>Zone     <td>-12..12      <td>HH.ddd   <td>Time Zone, so that UT:=Time_of_Zone-Zone<td>Vienna: +1  (Daylight time: +2)
+</table>
+
+<p><hr><p>
+ <h2 align=center><a name=Introduction>Introduction</a></h2>
+
+<p>Valid range of dates: -4712...+9999<br>
+All programs needing time input to work were programmed so that if there are too few arguments on the stack, i.e.  date and time missing, those data are read from the internal clock. This saves the user from unnecessary keystrokes. Input  and  output format for calendar dates  depends  on  the current state of system flag -42: MM.DDYYYY if flag is  clear, DD.MMYYYY if set. This is the same format as used  by  the system. Time inputs are always in 24 hours format. Display of output then depends on system flag -41 (12/24 hours).
+<br>Sometimes the display is too small to show all data at once. Then you may use the cursor keys to scroll the display. PICT is not used for display, so user graphics are saved. However, if you want to keep the display, you can <b>STO</b> its contens into PICT.
+
+<p>For each command a stack diagram will be given. Input values are  needed  on  the  stack or in the command  line  before  a command is started. "Date" means a calendar date in the current HP48 date format, i.e. DD.MMYYYY if flag -42 is set, or MM.DDYYYY if flag -42 is cleared. "Time" is  input in 24 hours format, HH.MMSSddd. Degrees  are used   either  with  minutes,  seconds  and  decimal   seconds (DD.MMSSddd) or in decimal degrees (DD.dddd).
+<br>Equatorial  and  Hour Angle coordinates use  the  hour-minute-seconds (HH.MMSS) resp. degree-minute-second (DD.MMSS) format, the other coordinate systems use decimal degrees DD.dddd.
+
+<p><hr><p>
+
+<h2 align=center><a name=Urania48>Library 1609 - Urania/48</a></h2>
+
+<b>Common data for all finder programs</b>
+
+<pre>
+<p> <b>Input for all finder programs </b>
+ 2: Date
+ 1: Time (of Zone)             ->  2: _HH.MMSS
+or                                 1: _DD.MMSS
+ 1: --- ( -> current time )
+
+<p>(alpha)DAT,  (delta)DAT:  Equatorial coordinates for equinox of date
+<br>(alpha)2000, (delta)2000: Equatorial coordinates for equinox J2000.0
+<br>MAG:                      Apparent visual magnitude
+
+Rise:  Time of Rise        AZ(NESW):  Azimuth
+Set:   Time  of  Set       ALTITUDE:  Apparent  Altitude  (Incl.refraction)
+Trans: Time of Transit     HOUR ANG.: Hour Angle
+</pre>
+<br>You may scroll down the display with the (DOWN) key to find the map numbers of SKY ATLAS 2000.0 and URANOMETRIA 2000.0, as well as DATE,  TIME,  JD,  ¢T  used,  SITE:  L=Longitude,  B=Latitude, UT¤(Zone)
+<br>The finder programs leave equatorial coordinates on the stack, to  allow  following the object's motion with the  Hour  Angle Clock, HCLK.
+
+<pre>
+<b>Menu PLANET</b>
+
+For all programs in the menu, except HACLK
+ 2: Date
+ 1: Time (of Zone)             ->  2: _HH.MMSS
+or                                 1: _DD.MMSS
+ 1: --- ( -> current time )
+
+Page 1:  <b>MERC VENU MARS  JUPIT SATUR HACLK</b>
+Page 2:  <b>URAN NEPT PLUTO ASTER COME  HACLK</b>
+Page 3:  <b>SUN  MOON MPHY  JUMO  SAMO  HACLK</b>
+
+L, B, R: Heliocentric  ecliptical Longitude,  Latitude  and
+         Distance (AU) from the Sun.
+lambda, beta, Delta: Geocentric ecliptical Longitude, 
+                     Latitude and Distance
+                     (AU and Light Minutes) from Earth.
+EL: Elongation from the Sun.
+Data valid for equinox of date, except PLUTO, here position is
+computed for equinox J2000.0.
+
+MAG:    Apparent visual magnitude
+Ø:      Apparent polar diameter
+ILL:    Illuminated fraction of disk, percent
+
+<b>PLUTO</b>    There is still no complete theory of Pluto's motion.
+    Therefore,  this calculation is only valid for  the  years
+    1885..2099!  For  other times, you  will  need  osculating
+    orbital elements and treat Pluto like an asteroid.
+
+<b>ASTER</b> Selection  of an asteroid from  the  external  list
+      ASTEROID.DAT
+T:      Orbital period
+EL:     Elongation from the Sun.
+PH.ANG: Phase Angle Sun-Asteroid-Earth.
+MAG:    Apparent visual magnitude.
+
+<b>COME</b>  Selection of a comet from the external list COMET.DAT
+     Type of orbit, orbital period T, if elliptical.
+EL: Elongation from the Sun.
+    MAG: Apparent visual magnitude.
+    Should a comet move on an extremely hyperbolic track
+    (maybe with e&gt;1.3), the algorithm of the calculation
+    might fail. In this case, the program will error, and no
+    calculation is possible for such rare comets.
+<b>SUN</b> 
+ Physical Ephemeris (after Carrigton):
+ CENTR: Heliographic Longitude L and Latitude B of the
+        center of the Sun's disk.
+ PA(AXIS): Position Angle of the northern end point of
+           the rotational axis, measured from the northernmost
+           point eastward along the Sun's limb.
+ ROTATION NR.: Rotation number after Carrington.
+ BEGIN: Begin of this rotation.
+
+<b>MOON</b> 
+    Geocentric ecliptical and Geocentric 
+    and topocentric equatorial coordinates. 
+    Geocentric distance and angular diameter.
+    Illuminated Fraction with small icon
+    Elongation from the Sun.
+    Equatorial horizontal parallax.
+    
+<b>MPHY</b>  
+    Physical   Ephemeris:  
+    Libration, PA of Axis,
+    Elongation, Phase Angle
+    Illuminated Fraction, PA of the bright limb
+    subsolar point, Colongitude of the Sun,
+    Longitude of Morning and Evening Terminator.
+
+<b>JUMO</b>     CM I, CM II: Longitude of central medidians I and II
+    of the visible disk, thus regarding the small light defect
+    inflicted by the phase angle of Jupiter to the Sun. The  4
+    great  Moons  can  be identified with the  given  symbols.
+    Numbers listed near the names are the apparent jovicentric
+    (X-)  distances  of  the Moons from  Jupiter's  center  in
+    Jupiter's radii. In the graphic below the moons are  drawn
+    as  seen in a astronomical (inverting) telescope.  In  the
+    enlarged  graphic in the upper right corner  you  can  see
+    Jupiter's  disk, possibly with a transiting moon  or  with
+    the  Great Red Spot (GRS), if visible. To enable this, you
+    have  to  put  a real number representing the  jovigraphic
+    longitude of the GRS into the global variable GRS.DAT.
+    With  the + / - keys, you can advance/go back in  time  by
+    one minute at a time, by pressing left-shift first you can 
+    jump in 10 minute steps.
+
+<b>SAMO</b> Access to Saturn/48 / SAMOON.  See <a href="#Saturn48">there </a>for description.
+
+<b>HACLK</b> Direct Access to the Hour Angle Clock
+
+<p>
+Menu <b>STAR:    BRIGH BINAR VAR            HACLK</b>
+
+<b>BRIGH</b>
+</pre>
+<p>328  bright stars are available. Selection is done in 2 steps:
+First,  a  name or part of it is entered. All found stars  are
+listed, of which you select the right one.
+<br>The  following  criteria were considered when the  stars  were
+selected for the list:
+<ol>
+<li>All stars to mag 3.0
+<li>At least one star of every constellation
+<li>Stars with proper names, as listed in Lit.[4],  and  some more.
+<li>Some fainter stars that are important within constellations.
+</ol>
+<p>By this, the catalogue of stars fainter than mag 3.0 gets very
+sparse, but still every constellation can be found in the sky.
+Star  names  are saved in the following format: "&szlig;  Cst  Name1
+Name2 ..", where &szlig; is the Bayer Designation (, , , ..), Cst is
+the  usual  3 letter constellation designation and Name1  etc.
+are  the  proper  names,.e.g.: "a CrB  Alphecca  Gemma  ".  The
+program  lets  you  input a name ur part  of  it.  Here,  also
+different  spelling  is  considered, so  e.g.  Beteigeuze  and
+Betelgeuse are both valid. Two part names are written  in  one
+part,  e.g. DenebKaitos. Upper-/lowercase input is both valid.
+To  find all stars of a constellation, just enter the 3 letter
+constellation code. A menu with the greek letters may help.
+In the final selection, choose from all found stars or retry.
+<p>Following data are listed:
+<pre>
+MAG(V):  Apparent magnitude (in the V-Band of the UBV system)
+M(ABS):    Absolute  Magnitude: This is the Magnitude  of  the
+     star  seen  from  a  distance of 10  Parsec  (32,6  Light
+     Years).It is a measure of true luminosity.
+B-V: Spectroscopic  color index: this number gets higher  with
+     increased "redness" of the star
+SP:  Spectral type and luminosity class
+DIST:Distance in Parsec and Light Years
+COORD.:  The  coordinates  are shown for  standard  epoch  and
+     equinox J2000.0 and for epoch and equinox of date.  Here,
+     also proper motion as well as Nutation and Aberration are
+     considered.
+
+<b>BINAR, VAR</b>
+Selection of binary resp. variable stars from lists. There  is
+a  default  database  built  into the  library. The manual for
+the registered version describes how to use a custom database.
+
+<b>BINAR</b>
+Separation and Position Angle are of J2000.0.
+SEP: Separation of the components
+PA:  Position  angle of the fainter component,  measured  from
+     North towards the East.
+MAG: Apparent magnitudes of the components
+SP:  Spectral types of the components
+
+<b>VAR</b>
+TYPE: One of 35 Variable types
+PER: Period measured in days
+MAG: Maximum and minimum magnitudes of the star
+SP:  Spectral class
+
+
+<b>Menu DSO MESSI OTHER              HACLK</b>
+
+If  you  have  RNGC1/48 installed, DSO will call DSO.NGC.  See
+<a href="#RNGC48">there</a> for more information.
+
+<b>MESSI</b>       Finder program for Messier objects
+ 3: Date
+ 2: Time(of Zone)
+ 1: Messier number
+or:                               ->  2: _HH.MMSS
+ 2: ---                               1: _DD.MMSS
+ 1: Messier number (-> current time)
+
+<b>OTHER</b>       Finder program for other DSOs
+ 2: Date
+ 1: Time(of Zone)                 ->  2: _HH.MMSS
+or:                                   1: _DD.MMSS
+ 1: ---            (-> current time)
+
+The database for <i>more</i> DSOs and how to expand it is 
+described in the manual of the registered version.
+
+Data:
+Name, Constellation.
+Comments,  e.g.  NGC  numbers for Messier  objects  or  proper
+      names.
+OBJECT TYPE
+MAG: Apparent magnitude.
+DIM: Dimension: Arc seconds for Planetary Nebulae, arc minutes
+     for others.
+DIST: Distance in Parsec and Light Years.
+
+
+<b>MAP</b>  draws  either a Planisphere or a horizontal cylindric map
+Call with
+ 2: Date
+ 1: Time(of Zone)
+or
+ 1: --- ( -> current time)
+</pre>
+<p>On this map you find the stars which are currently above  the
+horizon,  along with the planets (Mercury to Saturn)  and  the
+Sun.  The Moon is drawn with a phase icon. In addition,  there
+are the cardinal directions, site of observer and time. On the
+horizontal map you will also find grid lines for 0, 30, 60 and
+90 degrees of altitude and every 45ø in azimuth.
+
+<p>Selection criteria for the star catalogue (see STAR / BRIGH)
+sometimes  lead to relatively bright unnamed stars  being  not
+drawn,  while faint main stars of small constellations  appear
+unnaturally bright.
+
+<p>Above  60ø  altitude, constellations in  the   horizontal  map
+appear strongly distorted. Therefore, for all-sky observation,
+the planispere should be preferred.
+
+<p>Maps for dates before 1950 and after 2050 will take more time,
+because Precession will be accounted for.
+
+<pre>
+<b>TCLK</b> Running clock display of current Zone Time and Mean Local
+     Sidereal Time.<br>
+     Stack is not changed.
+
+<b>HCLK</b> Running clock display of Date, Time, Mean Local Sidereal
+     Time, and current Hour Angle, Declination, Azimuth and
+     Altitude of the object at the given coordinates. Includes
+     refraction.
+     Stack is not changed. (Or a 0 is added to level 1 if
+     called only with R.A. of the object.)
+     Call:
+      2: _HH.MMSS
+      1: _DD.MMSS
+     or                          ->  2: _HH.MMSS
+      1: _HH.MMSS (->=0)             1: _DD.MMSS
+
+<b>ECLMAP</b>   Ecliptical map of the planets, of 3 types:
+1.) Ecliptic 360..0ø Longitude, 10ø Latitude, Sun, Moon (with
+    phase) and Planets (Mercury to Neptune).
+2.) Elongation from the Sun:
+    This map is mainly a quick overview where the planets can  be
+    found  in relation to the Sun. Visibility conditions  can  be
+    thus found quickly. Marks for EVENING resp. MORNING indicate,
+    when the objects drawn below are best visible.
+ a) Centered on the Sun.
+ b) Centered on the Gegenschein (the point opposite the Sun).
+The  horizontal  lines represent the ecliptic  and  ecliptical
+latitudes +5 and -5.
+Call:
+ 2: Date
+ 1: Time(of Zone)
+or
+ 1: --- (-> current time)
+
+<b>SEASONS</b>   Calculates  the beginning of  the  seasons  for  any
+year.
+An error in the computed position of the Earth on its orbit of
+only  2.5  arc  seconds will result here in an  error  of  one
+minute   (of  time).  The  results  of  this  program  should,
+therefore,  be only few minutes off. Several tests  showed  an
+error of usually less than two minutes.
+Call:
+ 1: Year
+or
+ 1: --- (-> current year)
+
+<b>ECLIPSES</b>  Calculates the most important data for  eclipses  of
+Sun and Moon.
+At  the  start  of the program, you may select  the  types  of
+eclipse  to find. Now, dates of possible eclipses are checked.
+If  there is no eclipse, mean date and time (DT) of the  event
+are  showed  briefly, and calculation resumes. If  an  eclipse
+occurs, a screen full with data will be shown. With the + /  -
+keys,  you  can  advance into the future or go back  in  time,
+respectively.  If  you  press (LS)-(+)/(LS)-(-), you  advance  by  10
+intervals at a time (i.e. 10 or 5 months, resp.).
+
+Lunar Eclipses
+Date,  Time  (DT) of the eclipse, Type, event in ascending  or
+descending node.
+Position  of  the Moon in mid-eclipse (north/south  of  shadow
+center):  gamma  is  the  smallest  distance  of   the  Moon's
+center  to  the  axis of Earth's shadow in  units  of  Earth's
+equator  radius.  Radii of umbra/penumbra in  Earth's  equator
+radii  in  Moon's distance. Maximal magnitude  of  eclipse  in
+Umbra  or  Penumbra,  resp. Times (of  Zone)  of  the  various
+phases.
+
+Solar Eclipses
+Date,  Time  (DT) of the eclipse, Type, event in ascending  or
+descending node. Area of visibility on the Earth: Moon's umbra
+sweeps across the Earth's surface in a narrow track of only  a
+few  km width. Gamma here is the smallest distance of the axis  
+of the Moon's shadow from the center of the Earth in  units of
+Earth's  equator radii. In connection with the time of maximal
+eclipse,  the  area  of  visibility  can  be  deduced.   E.g.:
+24.10.1995, 4:34 DT, g=0.352: Visible in subtropical  northern
+latitudes of the Middle and Far East. (In Europe, the  Sun  is
+still  below the horizon.) More exact calculations are  rather
+lengthy,  so  they  are  omitted  here  and  left  to  greater
+computers.  Radii  of Umbra/Penumbra on the fundamental  plane
+(the  plane  through the center of the Earth perpendicular  to
+the shadow's axis). Time (of Zone) of maximum eclipse.
+
+Call:
+  1: Start date of search  
+ or  
+  1:  ---  (->  current date)
+
+<b>APSIDES</b>    Calculates  the  great  planets'  nearest  passages
+through Perihelion and Aphelion.
+The returned dates "surround" the calling date.
+The  errors  are:  Mercury...Mars: hours;  Jupiter:  2  weeks;
+Saturn: 1 month; Uranus, Neptune: up to several months.  These
+errors  are  due to the simple algorithm used here which  uses
+undisturbed orbits.
+Call:
+ 1: Date     or  1: --- (-> current Date)
+
+<b>EQTM</b>  Calculates  the Equation of Time, the  difference  in
+right  ascension between True (apparent) and Mean (fictitious)
+Sun.  If  the  value  is positive, the True  Sun  crosses  the
+meridian before the Mean Sun - a Sundial is "early".
+Call:
+ 2: Date
+ 1: Time(of Zone)         ->  1: :Eq.of Time (HMS): HH.MMSS
+or
+ 1: --- (-> current time)
+
+<b>ANA</b>      Draws the Analemma of the Equation of Time for a year
+and the position of the Sun on it.
+If you draw the Equation of Time against the Sun's declination
+for  a  whole  year, the result is the famous  "figure-8".  It
+represents  the  position of the true Sun at mean  noon.  This
+graph  is  scaled: The vertical line represents the  meridian,
+the  horizontal line declinations of 20ø, 10ø, 0ø, -10ø, -20ø.
+The length of the lines corresponds to 20 Minutes. The greater
+dots on the track mark the first days of the months, the thick
+dot represents the Sun for the required date.
+Below the Analemma (press Q) you find the date for the plotted
+position of the Sun.
+You should watch the change of the shape during the millennia!
+Call:
+ 1: Date    or       1: --- (-> current date)
+
+<b>(UpDnX)</b>     Calculates times of rise, transit and  set  of  an
+object for the required date, even for objects in motion!
+Call:
+3: RA, HH.MMSS   or 3: { RA1 RA2 RA3 }
+2: Dec, DD.MMSS     2: { Dec1 Dec2 Dec3 }
+1: Date             1: Date
+or:
+3: ----          or 3: -----
+2: RA, HH.MMSS      2: { RA1 RA2 RA3 }     (->  current Date)
+1: Dec, DD.MMSS     1: { Dec1 Dec2 Dec3 }
+
+With 3 (or 2) real numbers on the stack, the object is assumed
+not  to be in motion (e.g. star), and the times are calculated
+more  quickly. With 2 lists of 3 real numbers each and a  date
+(or  just 2 lists), also times for moving objects (such as the
+Moon  or  rapid  comets and asteroids) can be calculated  more
+accurately. Symbols here are: 1, 1 Right ascension (HH.MMSSS),
+declination (DD.MMSS) of the previous day, 2, 2 RA,  decl.  of
+the  day in question and 3, 3 RA, decl. of the following  day,
+each time for 0h DT. These values can be calculated with other
+programs or taken from an almanac.
+
+Result:
+ 3: :Rise:      HH.MM    "circum-"   "not"       "POLE!"
+ 2: :Set:       HH.MM    "polar"     "visible"   "Not"
+ 1: :Transit:   HH.MM    HH.MM       HH.MM       "defined"
+
+<b>TLOC</b>    Returns Mean Sidereal Time for any date.
+Call: 2: Date
+      1: Time(of Zone)           -> 1: :Sidereal Time: HH.MMSS
+  or  1: --  -> current time
+
+<b>PARANG</b>    Calculates the Parallactic Angle of an object.  This
+is the angle between the vertical and the North-South-Axis. It
+is  the  amount of apparent rotation of an object (e.g.  Moon,
+planet  or constellation) far from the meridian. (For example,
+the  setting  crescent  of the Moon  in  the  evening  sky  of
+temperate northern latitudes is noticeably tilted.)
+Call: 2: Hour Angle, HH.MMSS
+       1:  ,  DD.MMSS                     -> 1: q,  Par.Angle,
+DD.ddd
+
+<b>ECLHOR</b>   Calculates the intersections of the ecliptic with the
+horizon and the inclination of the ecliptic to the horizon.
+Call:    2: Date
+         1: Time(of Zone)
+  or     1: --  -> current time
+Result:  3: :: DDD.ddddd   This ecl. Longitude is rising
+         2: :: DDD.ddddd   This ecl. Longitude is setting
+         1: :: DDD.ddddd   Angle between ecliptic and southern
+horizon
+
+<b>REFR+</b>         Adjusts  a geometric (calculated)  position  for
+refraction. In this altitude we can see the object.
+1: h,geom_DD.ddd            ->    1: ho,apparent_DD.ddd
+
+<b>REFR-</b>         Adjusts  an  apparent  (observed)  position  for
+refraction. Returns thus the Geometric Altitude.
+1: ho,apparent_DD.ddd       ->    1: h,geom_DD.ddd
+
+</pre>
+<p>Those  calculations assume by default air temperature of  10øC
+and  pressure  of  1010mbar. You might store real  numbers  as
+Celsius temperature in the global variable 'Temp' and pressure
+in  mbar  in  'Press'  to  account for  different  atmospheric
+conditions.
+<br>Note that these commands are not true reverse operations,  the
+formulae used are just simplified models of the effects of the
+atmosphere. Three decimal places are given, but please bear in
+mind that below ca. 5ø far lower precision should be assumed.
+
+<p>
+<u>Coordinate Transformations</u>
+
+<p>For    equatorial    coordinates   and   hour    angle,    the
+hour/minute/second resp. degree/minute/second format is  used,
+for all other systems decimal degrees
+
+<pre>
+<b>adlb</b>    Equatorial -&gt;  Ecliptical
+2: _HH.MMSS       ->     2: _DD.dddd
+1: _DD.MMSS              1: _DD.dddd
+
+<b>lbad</b>    Ecliptical -&gt; Equatorial
+2: _DD.dddd       ->     2: _HH.MMSS
+1: _DD.dddd              1: _DD.MMSS
+
+adlb, lbad: These programs by default use the obliquity of the
+ecliptic  for  the  epoch J2000.0. If  you  want  to  use  the
+ecliptic  for a different epoch, just put a year number  (also
+with  decimals) into the global variable '(epsilon).USR'. The 
+programs calculate the mean obliquity for this date and store 
+the value again into (epsilon).USR, tagged with the year.   
+Further transformations then don't have to recalculate it.
+
+<b>HdAa</b> Hour Angle/Declination -&gt;  Azimuth / Altitude
+2: _HH.MMSS       ->     2: Az(NESW)_DD.dddd
+1: _DD.MMSS              1: Altitude_DD.dddd
+
+<b>AaHd</b> Azimuth / Altitude -&gt; Hour Angle/Declination
+2: Az(NESW)_DD.dddd   ->  2: _HH.MMSS
+1: Altitude_DD.dddd       1: _DD.MMSS
+
+<b>adLB</b> Equatorial -&gt; Galactical II
+2: _HH.MMSS       ->     2: l_DD.dddd
+1: _DD.MMSS              1: b_DD.dddd
+
+<b>LBad</b> Galactical II -&gt; Equatorial
+2: l_DD.dddd       ->     2: _HH.MMSS
+1: b_DD.dddd              1: _DD.MMSS
+
+These tranformations are valid for equatorial coordinates
+of System B1950.0! For coordinates of other equinoxes at least
+precession  must be accounted for. For this you  may  use  the
+programs PreQ, Pre4 or Pre5 from AstroTools/48.
+</pre>
+
+<p><u>Date and Time Utilities</u>
+
+<p>The  Julian  Calendar is used for dates until  October  4th,
+1582. The following day is October 15th, 1582 in the Gregorian
+Calendar,  introduced at that date. Therefore, 10 days  should
+be invalid. In Urania/48, those 10 days (October 5...14, 1582)
+are  simply  interpreted  as  of  the  Julian  Calendar,  i.e.
+5.10.1582 =15.10.1582. In some countries, the Julian  Calendar
+was in use far longer, e.g. in the UK and USA until 1752.
+
+<pre>
+<b>ZT-&gt;JD</b>        Time of Zone  Julian Day
+2: Date
+1: Time(of Zone)         ->   1: JD_DDDDDDD.ddddd
+or
+1: --- (-> curr. Time)
+
+<b>JD-&gt;ZT</b>        Julian Day  Time of Zone
+1: JD_DDDDDDD.ddddd           ->   2: Date
+                                   1: Time(of Zone)
+<b>UT-&gt;JD</b>        Universal Time(UT)  Julian Day
+2: Date
+1: Time(UT)                ->   1: JD_DDDDDDD.ddddd
+
+<b>JD-&gt;UT</b>        Julian Day  Universal Time(UT)
+1: JD_DDDDDDD.ddddd           ->   2: Date
+                                   1: Time(UT)
+
+<b>-&gt;Y.FP</b>        Calculates Year with decimals
+2: Date
+1: Time                       ->   1: YYYY.dddddddd
+or
+1: ---- (-> curr. Time)
+<b>Y.FP-&gt;</b>        Reverse to åY.FP
+1: YYYY.dddddddd              ->   2: Date
+                                   1: Time
+
+<b>-&gt;N.Y</b>    Calculates Day Number within the Year
+1: Date
+or                            ->   1: DDD.YYYY
+1: ---- (-> curr. Date)
+
+<b>N.Y-&gt;</b>    Reverse to åN.Y
+1: DDD.YYYY                   ->   1: Date
+where    DDD Day number
+    YYYYYear number
+The sign is for the year
+
+<b>Date+</b>      Calculates from a date and a  day  count  a  new
+date.  This  command works similar to the built-in DATE+,  but
+you can also use dates before Oct. 15., 1582.
+2: Date
+1: Day count                 ->   1: Date
+
+<b>(D)DAY</b>     Calculates the difference between two dates in  days.
+This command works similar to the built-in DDAYS, but you  can
+also use dates before Oct. 15., 1582.
+2: Date1
+1: Date2                      ->   1: Day number
+Please  note that while you can omit the year with  DATE+  and
+DDAYS  to  use  the  current  year,  while the commands here
+understand year 0 in this case.
+
+<b>WDAY</b>    Calculates the Day of Week for any date.
+1: Date                       ->   1: "DayName"
+
+<b>EASTER</b>   Calculates date of Easter for any year.
+1: Year number
+or                          ->   1: :Easter: Date
+1: --- (-> curr. Year)
+Stellar magnitudes and distances
+
+<b>Smag</b>     Calculates  the  combined  magnitude  from  component
+magnitudes of e.g. a binary star.
+ 2: mag1
+ 1: mag2                      -> 1: mag_comb
+
+<b>dmag</b>     Calculates  difference in  magnitudes  from  a  given
+brightness ratio.
+ 1: Brightness_ratio          -> 1: mag, magnitudes
+Example: Star A is 7 times brighter than star B. What  is  the
+difference in stellar magnitudes?
+    Answer: 2.11
+
+<b>magR</b>    Calculates brightness ratio from two given magnitudes
+ 2: mag1
+ 1: mag2                       -> 1: Brightness_ratio
+The ratio is here always >1
+Example: Polaris, mag=2.12; Vega, mag=0.14
+    Result: Vega is 6.19 brighter than Polaris
+
+<b>Mabs</b>     Calculates absolute Magnitude from apparent magnitude
+and distance of a star.
+        Useful e.g. for working with data from a catalogue.
+ 2: mag(apparent)
+ 1: distance(Parsec)         -> 1: Mag(absolute)
+
+<b>LY-&gt;PC</b>        Conversion Light Years  Parsec
+ 1: distance, LY             -> 1: distance, pc
+
+<b>PC-&gt;LY</b>        Conversion Parsec  Light Year
+ 1: distance, pc             -> 1: distance, LY
+
+
+<u>Other Programs</u>
+
+<b>SPHDIST</b>  Calculates Great Circle Angular Distance between  two
+points on a Sphere (e.g. celestial sphere). This program works
+for all angular modi (DEG/RAD/GRAD) !
+4: l1, deg/rad/grad
+3: b1, deg/rad/grad
+2:  l2,  deg/rad/grad     ->   1:  Angular  distance, deg/rad/grad
+1: b2, deg/rad/grad
+
+<b>GEODIST</b>   Calculates distance between two sites on the surface
+of  the  Earth, accounting for the oblateness of  the  Earth's
+globe.  The  error is of the magnitude of the  square  of  the
+oblateness of the Earth, approx. 0.001124 % ( ! )
+Longitudes  are  positive  east of  Greenwich.  Latitudes  are
+positive north of the equator.
+This  program works for all angular modi, input has to be done
+in decimal degrees.
+4: l1, DD.dddd
+3: b1, DD.dddd
+2: l2, DD.dddd                 ->  1: Distance in km
+1: b2, DD.dddd
+
+
+<b>-&gt;HMd</b>     Conversion degrees with decimals   degrees,  minutes,
+fractions of minutes
+1: DD.dddd                ->  1: DD.MMdd
+
+<b>HMd-&gt;</b>    Reverse of the above
+1: DD.MMdd                    ->  1: DD.dddd
+
+<b>-&gt;hms, hms-&gt;</b>    Work like the built-in commands  -&gt;HMS, HMS-&gt;
+These commands are only included here to avoid jumping through
+the menus
+
+</pre>
+
+<p><hr><p>
+
+<h2 align=center><a name=Moon48>Library 1608 - Moon/48</a></h2>
+
+<pre>
+<b>POSITN.M</b> Access to Urania/48 / PLANET / MOON
+<b>PHYSIC.M</b> Access of Urania/48 / PLANET / MPHY
+ 2: Date
+ 1: Time(of Zone)
+or
+ 1: ---  (-> curr. Time)
+
+<b>The following 4 programs are called similarly:</b>
+1: Date          or   1: ---- (curr. Date)
+
+<b>PHASES.M</b> Times of main phases, 8 at a time, advance/go back in
+time with + / -.
+The  mean  error in the present time (1980...2020) amounts  to
+3.72 seconds, the maximal is 17.4 seconds.
+Usually,  1  event  before and 7 after the  calling  date  are
+found.
+<b>dMAXIMA.M</b> Times  and  amounts of greatest northern  /  southern
+declinations, 8 at a time, advance/go back in time with + / -.
+The  mean  error in the present time (1977...2022) amounts  to
+approx.  3  minutes  and 10", the maximal is  10  minutes/26".
+Usually,  1  event  before and 7 after the  calling  date  are
+found.
+<b>APSIDES.M</b> Times of passages through Apogee or Perigee, 4  at  a
+time,   appropriate   distances   and   horizontal   parallax,
+advance/go back in time with + / -. The maximal error for  the
+present time (1977...2022) is 31 Minutes/0.124" Parallax (12km
+distance) in Perigee, 3 Minutes/0.051" Parallax (6km distance)
+in  Apogee.  Usually, 1 event before and 3 after  the  calling
+date are found.
+<b>NODES.M</b>   Times of passages through the nodes, 8  at  a  time.
+Advance/go back in time with + / -.
+The  error for the present time (1980...2020) is in most cases
+less  than  2  minutes,  also  in  ancient  times  it  is  not
+significantly larger. Usually, 1 event before and 7 after  the
+calling date are found.
+
+<b>oALTITD.M</b> Calculates  the Altitude of the  Sun  above  a  given
+location on the Moon's surface.
+ 4:  selenogr. Longitude , DD.ddd (0=center, positive towards
+      the West)
+ 3: selenogr. Latitude  , DD.ddd (North = positive)
+ 2: Date
+ 1: Time(of Zone)
+or                               -> 1: :Alt.of  Sun: DD.ddd
+ 3: ---- (-> curr. Time)
+ 2: selenogr. Longitude , DD.ddd
+ 1: selenogr. Latitude  , DD.ddd
+
+<b>SPEED.M</b>  Calculates the angular speed of the Moon both in ecl.
+Longitude and in Elongation to the Sun.
+ 2: Date
+ 1: Time(of Zone)              ->  2: :(HMS): DD.MMSS_ø/h
+or                                 1: :Elong:  DD.MMSS_ø/h
+ 1: ---- (-> curr. Time)
+</pre>
+
+<p><hr><p>
+
+<h2 align=center><a name=AstroTools48>Library 1607 - AstroTools/48</a></h2>
+
+
+<p>Sometimes, a user may need more than the data presented by
+Urania/48. To avoid rewriting basic code and filling the calculator's
+memory, AstroTools/48 allows access to most internal commands of
+Urania/48. A layer of protection common for User-RPL commands avoids
+undesired results if used with wrong arguments, so usage should be
+safe.  It is mainly intended for owners of Lit[1], who can directly
+look up what the programs do. Detailed description of all programs is
+far beyond the scope of this manual. From the remarks listed here you
+will get some insight into how Urania/48 was programmed and also notes
+about accuracy.
+
+<p>The library comes in two versions. U48AUX.LIB only contains the
+most important commands which are also used by SITE and
+DATA. 48TOOLS.LIB contains all the listed commands.
+
+<p>The following commands are available in both versions of the library
+
+<pre>
+<b>MAPS</b>     Finds map numbers in Sky Atlas 2000.0 and Uranometria 2000.0.
+2: a, HH.MMd               2 :SkyAtlas: "MM"
+1: d, DD.MM            ->  1 :Uranom: "VV, MMM"
+where MM or MMM is the map number, VV is the volume ("I", "II"
+or "I&amp;II").
+
+<b>MESSIERdat</b>    Quick access to data of Messier objects
+                          2: a, HH.MMd
+1: ObjectNr           ->  1: d, DD.MM
+
+  or
+                          8: "Messier Nr   Cst"
+                          7: "Name"
+                          6: :a: HH.MMd
+                          5: :d: DD.MM
+1: -ObjectNr          ->  4: :mag:  mm.m
+                          3: :Type: "ObjType"
+                          2: :Dim:  "Dimensions"
+                          1: :Dist: D_pc
+
+<b>NGCdat</b>   Quick access to data of NGC objects, if installed
+                          2: :a1975:  HH.MMd
+1: ObjectNr           ->  1: :d1975:  DD.MM
+or
+                          8: "NGC Nr"
+                          7: :a1975:  HH.MMd
+                          6: :d1975:  DD.MM
+                          5: :mag:     mm.m
+1: -ObjectNr          ->  4: :Type:   "ObjType"
+                          3: :Const:  "Cst"
+                          2: :Dreyer: "Description"
+                          1: :RNGC:   "Description"
+
+<b>CHOOS2</b>    Modified CHOOSE for HP-48GX or replacement for HP-48SX.
+Call:
+3: "Prompt"           ( e.g. "SELECT:")
+2: { Obj1 Obj2 .. Objn }
+1: Pos_start
+Exit:  After OK        ->  2: Objk
+                           1: 1
+       After CANCL     ->  1: 0
+If Objm is a list, the first element from that list is shown.
+SX:  No window is shown and only one line is shown at a  time,
+but you can still work with it.
+GX: FullScreen-CHOOSE! With negative Pos_start  you may force
+the usual CHOOSE-Box.
+After  calling, Element Pos_start from the list  on  Pos.2  is
+displayed. With (up) or (down) you may select other elements from  the
+list,  as indicated by small arrows on the right (GX) or  left
+(SX)  side. When you have found the element, press OK
+and  continue  the  calling program.  If no selection  seems
+appropriate,  CANCL will return just  0.  CHOOS2  thus
+works very similar to CHOOSE on the GX models.
+
+<b>SCROLL</b>    Final stage for programs with graphic output to  the
+text or graphic screen.
+This program allows:
+1.)Scrolling with the cursor keys.
+   With left-shifted cursor keys you scroll the screen by
+   approx. one display width/height.
+   With right-shifted cursor keys you jump to the respective
+   edge.
+2.)Copies current screen into PICT with (STO). This is useful for
+   programs with output to the text display
+   (User-RPL commands DISP, -&gt;LCD etc.). If you already look at
+   PICT, the screen will look slightly disturbed, but nothing
+   harmful will happen.
+3.)Turn off the HP48 with (OFF) (normal behavior)
+4.)Leave this environment with (ON)
+5.)If, in your program, you use  local variables 'k', 'step'
+   and 'End', you can get similar behavior to JUMO and
+   ECLIPSES of Urania/48 and the programs of Moon/48:
+   k   : Real, a counter
+   step: Real, increment
+   End : Flag, Program end flag, (ON) stores TRUE in here
+         + / - in-/decrements k by step,
+         (LS)+ resp. (LS)- by 10*step
+   (Flag here means a System-RPL Flag TRUE or FALSE.
+   You may get TRUE with  ½ #03A81h SYSEVAL ¯
+               FALSE with ½ #03AC0h SYSEVAL ¯.)
+   This function should only be used by experienced
+   programmers. 
+
+<b>DRWCIRCLE</b> Draws circles in text display or PICT.
+3: { #x  #y }  2 Binary Integers (User Binary), Position  of
+               center
+2: r           Radius, pixels; if negative, a white circle  is
+               plotted
+1: 0 -> text display  / 1 -> PICT
+
+<b>GX?</b>     Detects calculator model:
+SX:  -> 0
+GX:  -> 1
+
+</pre>
+
+The  following  commands  are only  available  in  the  larger library, U48TOOLS.LIB, included with the registered version.
+<table cols=2>
+<tr><td>SHOWDATA <td>Access to the finder programs
+<tr><td>ATN2     <td>Arcus tangent in the correct quadrant
+<tr><td>R-&gt;P  <td>Conversion  Rectangular -&gt; Polar coordinates
+<tr><td>P-&gt;R  <td>Conversion Polar -&gt; Rectangular coordinates
+
+<tr><td>JD-&gt;T     <td>Basic function for many programs
+<tr><td>T-&gt;(epsilon)o <td>Obliquity of the ecliptic
+<tr><td>JD-&gt;(Delta)T <td>Gives Delta-T in days
+<tr><td>INTER    <td>Interpolation routines
+<tr><td>CIRCSIZE <td>Diameter of the smallest circle around 3 points on  a sphere
+<tr><td>STRAIGHT? <td>Help for finding the time of alignment of 3  objects in a line (great circle)
+
+<tr><td>PreQ     <td>Precession,   fast  version,  only  for   coordinates J2000.0
+<tr><td>Pre4     <td>Precession between arbitrary Equinoxes in FK4 system
+<tr><td>Pre5     <td>Precession between arbitrary Equinoxes in FK5 system
+<tr><td>PreEc    <td>Precession  between arbitrary Equinoxes in ecliptical coordinates
+<tr><td>ApPos    <td>Apparent  Position  of  an  object  in  FK5   system, including Nutation, Aberration
+<tr><td>RedOrbEl <td>Reduction  of  ecliptical  orbital  elements  between equinoxes
+<tr><td>SunPos   <td>Ecliptical Position of the Sun
+<tr><td>MoonPos  <td>Ecliptical Position of the Moon
+<tr><td>PlanPos  <td>Heliocentric Position of the Planets Mercury to Pluto
+<tr><td>OrbEl    <td>Orbital elements of the Planets
+<tr><td>Nutation <td>Nutation
+<tr><td>magPh&Oslash; <td>Apparent visual magnitude, phase and diameter of  the Planets
+
+<tr><td>KEPLER   <td>Solves the Equation of Kepler E=M+e*sin(E)
+</table>
+
+The following  programs'  names are just the  numbers  of  the formulae in Lit[1].
+F25.2, F25.3,  F29.12(29.1, 29.2), F33.14(33.1...33.4), F34.1, F32.1, F32.24(32.2...32.4), F32.78(32.7, 32.8), F32.9, F32.10, F36.1
+
+<table cols=2>
+<tr><td>GEOOBS  <td>Returns geocentric rectangular coordinates of observer.
+<tr><td>COPAR   <td>Correction for Parallax
+<tr><td>COPEC   <td>Correction for Parallax in ecliptical coordinates
+<tr><td>ILLMOON <td>Phase angle  of the Moon and position angle  of  its bright limb
+<tr><td>ILLANG  <td>Position angle of the illuminated limb of a Planet
+<tr><td>LEAPYR  <td>Checks whether a given year is a leap year
+
+<tr><td>DMY-&gt;JD <td>Calculates Julian Day from separate arguments Day/Month/Year
+<tr><td>JD-&gt;DMY <td>Reverse of above
+<tr><td>SPLITDATE <td>...from HP48 Format into Day/Month/Year
+<tr><td>BINDDATE <td>Reverse of above
+<tr><td>ade-&gt;l&szlig;  <td>Coordinate transformation with directly  given obliquity of the ecliptic
+<tr><td>l&szlig;e-&gt;ad  <td>Reverse of above
+
+<tr><td>FINDSTAR <td> Program for selection of a bright star
+<tr><td>GETSTARDAT <td> Access to data of bright stars
+<tr><td>STARNAMES <td> Access to alternative names of bright stars
+<tr><td>DSTAR.PCK <td> Packs  data of Binary Stars into the format used  in the optional external list DSTAR.DAT
+<tr><td>VSTAR.PCK <td> Packs data of Variable Stars into the format used in the optional external list VSTAR.DAT
+<tr><td>DSO.PCK  <td> Packs  data  of  DSOs  into the format  used  in  the optional external list DSO.DAT
+
+<tr><td>DATE$    <td> Creates nice date string
+<tr><td>TIME$    <td> Creates nice time string
+<tr><td>PAD$     <td> Pads string with leading spaces
+<tr><td>MAKE$22  <td> Formats a short string for display with DISP
+<tr><td>MOONGROB <td> Small moon phase symbols
+<tr><td>PLANGROB <td> Small planet symbols
+
+<tr><td>WDName  <td> Names of the week days
+<tr><td>MoName  <td> Names of the months
+<tr><td>CSTName <td> Names of the constellations
+</table>
+
+<p><hr><p>
+
+<h2 align=center><a name=Saturn48>Library 1606 - Saturn/48</a></h2>
+
+The <b>Saturn/48</b> library is included only with the registered version.
+It shows a view of Saturn's ring and 8 greatest moons.
+
+<p><hr><p>
+<h2 align=center><a name=RNGC48> Library 1602 - RNGC1/48</a></h2>
+
+Menu  DSO.NGC  MESSI NGC NBRW OTHER HACLK
+This is the same menu as Urania/48 / DSO with 2 more commands:
+
+<b>NGC</b>        Finder program for NGC objects
+<pre> 3: Date
+ 2: Time(of Zone)
+ 1: NGC number
+or:                                    ->  2: _HH.MMSS
+ 2: ---                                    1: _DD.MMSS
+ 1: NGC number (-> current time)
+
+Data:
+Number, Constellation
+OBJECT TYPE
+DREYER, RNGC description with installed libraries RNGC2/48 and RNGC3/48.
+MAG: Apparent magnitude, if available
+(alpha)2000, (delta)2000: Equatorial coordinates for equinox J2000.0
+(alpha)DAT, (delta)DAT: Equatorial coordinates for equinox of date
+
+<b>NBRW = BROWS.NGC</b>  NGC browser for objects in "numerical vicinity"
+1: NGC number     ->  1: NGC number
+or:
+1: ------- (->1)
+</pre>
+<p>The browser will list the objects in the numerical vicinity of the  entered number. Number, object type and constellation are given.  If  the  program is aborted with CANCL,  the number on the stack remains unchanged. If you accept with OK, the currently highlighted number is returned.
+This command works only on the HP-48GX!
+
+
+ <h2 align=center>Library 1601 - RNGC2/48<br>
+                    Library 1600 - RNGC3/48</h2>
+
+<p>These are only included with the registered version. They provide the coded descriptions from the original (1888) and Revised (1970s) NGC catalogues. 
+
+<p><hr><p>
+
+ <h2 align=center><a name=Auxiliary>Auxiliary programs</a></h2>
+
+<p>These  programs may also be stored in a port of a RAM card  to free more system memory.
+<pre>
+
+<b>PHENO</b>          Calculates   the   most   important   planetary
+phenomena  of  the  major planets (Oppositions,  Conjunctions,
+greatest Elongations) for the requested year.
+Call: 1: Year
+        or
+      1: --- (-> curr. Year)
+
+<b>DATA</b>
+Program  to  edit  the data  lists  ASTEROID.DAT  and COMET.DAT
+Allows adding/changing/deleting object data. To add data,  you
+will   need  orbital  elements  listed  e.g.  in  astronomical
+magazines or newsgroups.
+
+<b>SITE</b>
+Program  to  edit  the  list  SITE.DAT  and   select observing sites:
+Allows choosing/adding/deleting sites.
+</pre>
+
+<p><hr><p>
+                               
+<h2 align=center><a name=Variables>Variables used with Urania/48</a></h2>
+
+<p>Variables marked with a (*) are essential, the others are optional. Missing or bad (*)-marked variables will result in an error.
+
+<pre>
+Observing Site
+<b>Long</b>(*)   Geogr. Longitude,  -180..360ø, positive east of Greenwich. 
+          Format DD.ddd
+<b>Lat</b>  (*)  Geogr.Latitude, -90..90ø, positive north of equator.
+          Format DD.ddd
+<b>Alt</b>  (*)  Altitude  above sea level,  meters.  Only  used  for
+          computing topocentric position of the Moon.
+<b>Zone</b>(*)   Time  zone, positive east of Greenwich. 
+          E.g.  CET=+1, CEDT=+2
+
+<b>(D)T.USR</b>  (Delta)T, the time difference between Universal Time UT
+          and Dynamical Time DT (until 1984 Ephemeris Time ET) is
+          by default taken  from  a  list  or calculated. If  you
+          wish to use a different  value, store a real number for 
+          (D)T in seconds under this  name.  (Interesting for 
+          historians or for future  years)
+<b>(e).USR</b>   The coordinate transformation programs by  default  
+          use (epsilon)o,2000. If you need a different  value,
+          store  a  year  (with decimals) under this name, the
+          programs calculate  o,Year and store this value back,
+          tagged  with  the year. The following transformations
+          will then be faster.
+<b>Temp</b>, <b>Press</b>: Refraction is calculated for air temperatur  of
+             10øC and air pressure of 1010 mbar. For other 
+             conditions, store according values here. 
+<b>GRS.DAT</b>  Jovigraphic longitude of Jupiter's Great Red Spot. 
+
+<b>ASTEROID.DAT</b> (*)   Data list for Asteroids
+Format:
+{ { "Name"    (max. 22 characters)
+     Equinox  (e.g.1950, 2000)
+     T       (Epoch, e.g. 1995.6789)
+     Mo      (Mean Anomaly for date T; degrees)
+     omega   (Argument of Perihelion; degrees)
+     Omega   (Longitude of ascending Node; degrees)
+     i       (Inclination; degrees)
+     a       (Semimajor Axis of orbit, AU)
+     e       (Numerical Excentricity of orbit, &lt;1 )
+     H       (Magnitude parameter, mean abs. magnitude)
+     G       (Magnitude/inclination parameter)
+  }
+  { "Name"  ... }        (Next entry)
+  ...                    (More entries)
+}
+
+</pre>
+
+<p>Data for some asteroids are provided
+
+<pre>
+<b>COMET.DAT</b>(*) Data list for Comets
+Format:
+{ { "Name"    (max. 22 characters)
+    Equinox      (e.g.1950, 2000)
+    T            (Perihelion date, e.g. 1995.6789)
+    omega        (Argument of Perihelion; degrees)
+    Omega        (Longitude of ascending Node; degrees)
+    i            (Inclination; degrees)
+    q            (Perihelion distance, AU)
+    e            (Numerical Excentricity of the orbit,[0..~1.3])
+    H10      (Reduced magnitude)
+  }
+  { "Name" ... }         (Next entry)
+   ...                   (more entries)
+}
+
+</pre>
+<p>Data for some comets are provided.
+<pre>
+<b>DSTAR.DAT</b>, <b>VSTAR.DAT</b> and <b>DSO.DAT</b>
+             are described in the printed manual for registered users.
+</pre>
+
+<p><hr><p>
+
+ <h2 align=center><a name=Appendix>Appendix</a></h2>
+
+<b>Thanks To:</b>
+<table cols=2>
+<tr><td><nobr>Joseph K. Horn</nobr><td>For his great program collections from  the internet, the Goodies Disks for the HP48.
+<tr><td><nobr>Prof. H. Mucke</nobr><td>For important hints and literature,  esp. for Saturn/48.
+<tr><td><nobr>W. Vollmann</nobr><td>For valuable data and hints for Saturn/48.
+<tr><td><nobr>Lee Buck</nobr><td>For initial help with System-RPL.
+</table>
+Various participants of the USENET newsgroup <a href="news:comp.sys.hp48">comp.sys.hp48</a>, most  notably 2 members of the HP-48 design team, Jim Donnelly and  David  Arnett, and Mika Heiskanen, for  general  help  on understanding  and  programming the  HP-48  as  well  as  some "infotainment".
+
+<p>
+<ol>
+<lh><b>Literature</b>
+<li>Jean Meeus, Astronomical Algorithms<br>   Willmann-Bell, Inc.<br>   USA 1991
+<li>Jean Meeus, Astronomical Formulae for Calculators<br>   4th Edition, Enlarged &amp; Revised<br>   Willmann-Bell, Inc., USA 1988
+<li>Yale Bright Star Catalogue, 5th Revised Edition<br>   NASA Astronomical Data Center CD ROM
+<li>A. Hirshfeld, R. Sinnott<br>   Sky Catalogue 2000.0, 1. Edition 1982 (Vol.1) and 1985 (Vol.2)<br>   Cambridge University Press &amp; Sky Publishing Corporation
+<li>Robert Burnham, Jr.<br>   Burnham's Celestial Handbook<br>   Dover Publications<br>   New York, 1978
+<li>Richard Hinckley Allen<br>   Star Names - Their Lore and Meaning<br>   Dover Publications<br>   New York, 1963
+<li><a href="http://www.skypub.com"> Sky&amp;Telescope Magazine</a><br>   Sky Publishing Corp., USA
+<li>Explanatory Supplement to the Astronomical Almanac<br>   US Naval Observatory, 1992
+</ol>
+
+<p><hr><p>
+<center><a href="index.html"> Back to Urania home page</a></center><p>
+
+<p>
+<hr>
+<hr width="75%" align=center>
+<hr width="50%" align=center>
+<p align=center>
+<i>&copy; Georg ZOTTI, 1996 - 10 - 14 <br>
+<a href="mailto:gzotti@cg.tuwien.ac.at">gzotti@cg.tuwien.ac.at</a></i></p>
+</body>
+</html>

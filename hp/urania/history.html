@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD><TITLE>Urania - The History</TITLE>
+ <META NAME="Author"      CONTENT="Georg ZOTTI">
+ <META NAME="Description" CONTENT="Program history, Urania">
+ <META NAME="KeyWords"    CONTENT="HP48, Urania, Urania/48, astronomy, observing">
+</HEAD>
+<BODY BACKGROUND="img/URback.jpg" 
+      BGCOLOR="#777777" TEXT="#EEEEEE" LINK="#33FFDD" VLINK="#FFC3FF">
+
+<H1 ALIGN=CENTER>
+   <b><FONT SIZE="+5">
+        <IMG ALT="Urania" WIDTH=350 HEIGHT=100 SRC="img/UR-3Dlogo.gif">
+   </FONT></B>
+<BR>The Program History </H1> 
+
+<H4 ALIGN=CENTER>
+    The Astronomical Companion for the HP-48SX/GX and HP-49G Pocket
+    Calculator</H4>
+
+<P>Since about 1980, I have been very interested in astronomy and
+space exploration. In 1988 I became assistant guide at <A
+HREF="https://www.vhs.at/de/e/planetarium/standorte/urania-sternwarte">Vienna Urania public
+observatory</A>, directed 1971-2000 by <STRONG>Professor Hermann Mucke</STRONG>.
+
+<P>I decided not to study astronomy because I am not so
+interested in the current problems of astrophysics, but rather in the
+history of astronomy, in old celestial maps, and archeo- and
+ethnoastronomy, which are even more "fringe subjects" in these days. I
+find recreation and peace in the study of old maps and ideas, but also
+enjoy observing the real sky very much. Of course, I have some
+astrophysical knowledge as well. I started studies in Electrical
+Engineering at Vienna University of Technology, but then have changed
+to Computer Sciences there.
+
+<P> In the spring of 1993 I got my first programmable calculator, an
+HP-48SX. Soon I realized the enormous capabilities and usability of
+this remarkable machine. It has a 131x64 pixel LCD graphic display,
+32kB RAM, expandable with plug-in cards either with ROM (program
+cards) or RAM (loadable libraries, programs or backup memory) of
+either 32kB or 128kB, and serial as well as IR interface. Friends
+showed me software collections from the Internet newsgroups
+<TT>comp.sys.handheld</TT> and later <A
+HREF="news:comp.sys.hp48"><TT>comp.sys.hp48</TT></A>, most notably
+<STRONG>Joseph K. Horn</STRONG>'s famous program collections known as
+<EM>Goodies Disks</EM>, including also some astronomical software. I
+started writing my own programs in the calculator's specific language,
+RPL, a descendant of LISP and FORTH, working in HP's common Reverse
+Polish Notation. These programs were based on a book which I had from
+1989, when I thought I could use the TI-30 for such calculations:
+
+<P style="text-indent:2em;"><STRONG>JEAN MEEUS<BR>
+ASTRONOMICAL FORMUL&AElig; FOR CALCULATORS<BR>
+4th Ed., WILLMANN-BELL 1988
+</STRONG>
+
+<P>From this, I made some fine programs, most notably one for
+Jupiter's moons.
+
+<P>In October 1993 I upgraded to the then new model HP-48GX which is
+faster and even more expandable with plug-in RAM cards of up to
+4MB. (A 1MB card was built by HP, and 2 and 4MB cards were later
+offered by other companies.) Until June 1994, I worked on expanding an
+existing huge planetary ephemeris program from Goodies Disk #6,
+<EM>TYKO 3.1</EM>, by the Finnish author
+<STRONG>K.M.Sinenmaa</STRONG>. I could considerably improve its
+run-time and expanded it to include some stars and the Messier
+Catalogue, but it was still not complete enough for me, and it was
+based on formulae which were not accessible to me. I decided to dive
+deeper into programming the HP48 in its system language (System-RPL),
+which is faster but more dangerous to work with, and write my own
+universal programs to calculate the positions of the planets, the
+Moon, the Sun, Comets and Asteroids, and include also data of more
+stars and Deep Sky Objects (DSOs). In those weeks, I had found a great
+book about all this, by the same author whom I already knew to write
+very clear and understandable text:
+
+<P style="text-indent:2em;"><STRONG>JEAN MEEUS<BR>
+ASTRONOMICAL ALGORITHMS<BR>
+WILLMANN-BELL, INC. 1991</STRONG>
+
+<P>Unfortunately, I bought the second German Edition, published in
+1994 by JOHANN AMBROSIUS BARTH, which said "revised" on its title. I
+started programming, but soon found some "errors" in my programs,
+which did not get the results from the examples. I compared procedures
+with my older book, and I knew: <EM>This second edition must be still
+filled with errors.</EM> <STRONG>Professor Mucke</STRONG>, the
+director of the Vienna Planetarium and Urania Observatory, allowed me
+to check my book with his original US edition, and I could find dozens
+of smaller but several major errors induced during translation and
+typesetting. There was a whole paragraph missing, and most notably
+even one of the few diagrams! The proofreaders must have slept! The
+original US edition, which I also came to read during comparison, is a
+joy to read in contrast. Should you have to work with the German
+second edition, see my  <a href="meeuserr.html">list of errors (german, obviously)</a>.
+
+<P>The development of the first version was completed in February
+1995. I decided to try and offer the programs to people sharing my
+enthusiasm with the sky. So the programs were thoroughly tested on my
+calculator in almost daily use until July 1995. Then I had the main
+library programmed on a few OTP ROM cards.  This program card, sold as
+<B>AstroHANDY</B>, together with some additional programs, included
+almost everything from Meeus' book. Although no commercial success
+(which I did not expect anyway), the few responses were very positive.
+
+<P>In September 1995, I got better information about the System-RPL
+use of the HP-48GX's internal list and choose functions (<STRONG>Jim
+Donnelly</STRONG>, a member of the HP48 design team, released a book
+about System-RPL in these days, finally), and by October, 1995, I had
+changed some programs.
+
+<P>By March 1996, I found a way to include the whole RNGC catalogue in
+three large libraries! One contains positional and object type data,
+the others the text code descriptions by Dreyer and from the RNGC,
+respectively. The user is free to install only one or two libraries to
+save memory. With some more data encoding, I managed to shrink the
+size of the RNGC1 library (which is the most important of the three)
+from 85kB to 55kB, and the others by 10kB each, to 108kB and 94kB.
+
+<p>In summer 1996, I wanted to complete the whole package by including
+Saturn's moons, translating all programs and the documentation to
+English and releasing it into the shareware market for HP48 users
+(without ROM card).  I worked with the <EM>Explanatory Supplement to
+the Astronomical Almanac</EM> of 1992, which seemed to me to be one of
+the most "sacred" books of positional astronomy (and the only book I
+could find describing how to calculate the positions of Saturn's
+moons). The descriptions given in the chapter named, interestingly
+enough, <CITE>Orbital Ephemerides and Rings of Satellites</CITE>
+(sic!) were misprinted to be unclear on a few places, but I thought I
+could still work. After the estimated three weeks of reading and
+programming the programs worked, but the results had nothing to do
+with the real position of Saturn's moons! Now, debugging System-RPL
+calculator programs is not easy (stack oriented, very much like
+FORTH...), and I looked for <EM>my</EM> errors for two more weeks. I
+dived deeply into the described theory of orbital geometry, compared
+with the Explanatory Supplement of 1961 which describes completely
+different ways of finding the moons' positions, and I could really
+find some <EM>must-be-errors in the 1992 Supplement!</EM>
+<STRONG>Saturn/48</STRONG> remained half-working.
+
+<P>For the new version I chose the name of <STRONG>Urania/48</STRONG>,
+in memory of the Muse of Astronomy and of the name of the Vienna
+Urania Public Observatory where I was assistant 1988-1996 and then
+guide until 2001, when Urania Observatory was closed for renovation.
+
+<P>In 1999, Hewlett-Packard released a successor to the HP48 series, 
+the HP-49G. So, People started to ask, 
+
+<CENTER><H3> What about a HP49 version, Urania/49? </H3></CENTER>
+
+<P> In summer of 1999 I finally transferred the source tree of more
+than 30000 lines of code (OK, with comments and some automatically
+created data,...) for Urania/48 from DOS (with all that nice greek
+letters from codepage 437...) to Linux, to be able to use the
+development tools on that platform.  I had been working on a new
+system of documentation using a new <A HREF="../hp48-mf-0.6.zip"> LaTeX package
+</A> with some self-made fonts I had developed in 1998-99, and now was
+the time to implement it and some smallish program improvements in the
+main part of Urania/48.  And, finally a new edition of Meeus'
+Astronomical Algorithms contained Saturn's satellites in the usual
+clear way, so at last it works.
+
+<P> Jan.6., 2000: Finished! Urania&nbsp;V2.1 for HP48 and HP49 is
+available!  The name is now only <STRONG>Urania</STRONG>, only if one
+talks about a specific version the model number may be added.
+
+<P> One more addition has been suggested by <STRONG>Keith
+Farmer</STRONG>: Meeus gives polynomial expressions for the giant
+planets' positions for 1998-2025, which are a lot faster than the VSOP
+calculations. Keith helped with entering the numbers, so we decided to
+release it as <B>QVSOP</B><A HREF="QVSOP/index.html"> here </A>.
+
+<P> A great addition still awaits completion: <STRONG>Map2</STRONG>
+is a great sky map with hundreds of stars, the Messier objects, and planets. 
+It allows zooming in and out again, etc. Unfortunately, its author, 
+<STRONG>Dominique Rodriguez</STRONG> no longer has time to finish the port
+to the HP49. So, if you like to help, please contact me. If you can help,
+you will get a personally registered full version of Urania for free!
+
+<p>In 2014, it's time to realize that this software will likely see no
+further development, and also asking for support years after my
+studies is no longer necessary. I still use it, and if you happen to
+have one of these calculating gems, you can also download it for free
+now.
+
+<P><HR WIDTH="75%" ALIGN=CENTER>
+<P ALIGN=CENTER><A HREF="index.html">Back to Urania home page</A>
+
+<P><HR>
+<HR WIDTH="75%" ALIGN=CENTER>
+<HR WIDTH="50%" ALIGN=CENTER>
+<P ALIGN=CENTER>
+<I>&copy; Georg ZOTTI, 2014 - 06 - 19 <BR>
+</I></P>
+
+</BODY>
+</HTML>
+
+
+
+
+
+
+

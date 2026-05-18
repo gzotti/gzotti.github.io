@@ -1,0 +1,134 @@
+<HTML>
+<HEAD>
+<TITLE> Map2/48 - A New Map for Urania/48</title>
+</HEAD>
+<BODY    background="../img/u48back.jpg" bgcolor=#888888 text=#eeeeee 
+link=#33ffdd vlink=#ffc3ff>
+
+<H1 ALIGN=CENTER> Map2/48 </H1>
+<H3 ALIGN=CENTER> Produced by </h3>
+<h2 ALIGN=CENTER> D. Rodriguez  (<tt>dominique.rodriguez@waika9.com</tt>)
+</H2>
+
+    <A href="Map2-for-Urania2.1-48bin.zip"> Map2/48</a>
+ is an exceptionally good star plotter add-on for the Urania package.
+
+<H2><a name="#helpme"> HELP WANTED!! </a> </H2>
+
+Map2 currently only runs on the HP48. Dominique has no HP49, and 
+I lack time to dive into SASM programming. If you are good in System RPL
+and Assembler (SASM), and are willing to spend a few hours, you are
+invited to finish the port for the HP49. I will reward you with
+a full license of Urania V2.1 for both HP48 AND HP49 calculators.
+
+<p> Please contact me via <a href="mailto:gzotti@cg.tuwien.ac.at">email </a>.
+
+<p align="right"> Georg Zotti.
+
+<hr width="70%">
+<p>The following describes <a href="map2-1.0.4.zip"> Map2 1.0.4</a>
+ for the old version <a href="u48share.zip"> Urania/48 V2.0</a>. 
+DO NOT TRY Map2&nbsp;V1.0.4  WITH URANIA, VERSION&nbsp;2.1! 
+
+
+<p> Copyright (C) 1999 <a href= "mailto:dominique.rodriguez@waika9.com"> D. Rodriguez</a>
+
+<pre>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either <a href="copying">version 2</a> of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    <!--If you want the source code, email me.-->
+
+    Map2 only works on HP48G
+
+    If you like this program and use it just send me an Email!
+
+INSTRUCTIONS:
+1. Download the package and install the files on your HP48GX.
+   MAP2RES.lib can be stored in every port, whereas MAP2.lib must be stored in
+   port 0 or 1.
+2. You must go in the directory where all the settings for Urania48
+   are stored (Zone, Alt, Long, Lat).
+3. Press [MAP2] for entering the application,
+
+
+FIRST CHOOSE BOX:
+
+  New conditions: for drawing a new map,
+
+  Load map: for loading a saved map from memory.
+
+LOAD MAP:
+
+  choose the correct variable using the browser, .. is for going up.
+  When ready press OK or ENTER.
+
+NEW CONDITIONS:
+
+  just set the correct time and date,
+  you can change the position settings by pressing POS,
+
+  SIZE control the radius of the map in pixels,
+  STAR # is for the number of star to plot,
+  PLANETS enables the drawing of solar system objects,
+  MESSIER enables the drawing of Messier Objects,
+  Press OK when ready.
+
+  it takes approximatively 8min for a plotting all the objects (1504
+  stars, Messier and Planets),
+
+KEYMAP
+
+  the cursor moving is controlled by the four arrows, and by the
+  numeric keys (except 5), the vector from 5 to the key give you the
+  direction of the moving (for instance 8 is up).
+  LS repeat the moving 25 times in the choosen direction.
+
+  [5]   toggles name printing,
+
+  [+/-] toggles coordinates printing in Alt/Az form, setting this option
+      slow down considerably the moving of the cursor,
+ 
+  [X]   toggles zoom mode (not x but times)
+
+      Keymap in zoom mode
+  
+      + enlarge the zoom circle,
+      - reduce the zoom circle,
+      CANCEL & X : leave zoom mode,
+      ENTER: select zoom
+
+  [A]   call the Urania info sheet on the object pointed by the cursor
+      (Planets, Moon, Sun or Messier). Press CANCEL for returning to
+      the map.
+
+  [.]   flash-print the coordinates of the cursor,
+
+  [CANCEL] unzoom, or leave the map,
+
+  [STO] stores the map in memory, enter a valid variable name,
+
+  [+]   zoom in (only works for zoomed map),
+
+  [-]   zoom out (only works for zoomed map),
+
+  [RS]-&lt;dir&gt; move the zoom window in the choosen direction, the center
+      of current window is placed at the edge of the new one.
+      It doesn't work for diagonal move.
+
+</pre>
+</body>
+</html>
+

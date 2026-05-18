@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+<TITLE> QVSOP - Quick VSOP Positions for the Giant Planets</TITLE>
+</HEAD>
+<BODY BACKGROUND="../img/URback.jpg" BGCOLOR=#888888 TEXT=#EEEEEE 
+LINK=#33FFDD VLINK=#FFC3FF>
+
+<H1 ALIGN=CENTER> QVSOP V1.01</H1>
+<H3 ALIGN=CENTER> Produced 01/2000 by </H3>
+<H2 ALIGN=CENTER> Keith Farmer and Georg Zotti</H2>
+
+
+<B>QVSOP</B> gives the positions for the planets Jupiter, Saturn,
+Uranus and Neptune for the years 1998 to 2025. It uses the polynomial
+expressions from Astronomical Algorithms, 2nd ed., by Jean Meeus. 
+
+<P><B>QVSOP</B> may be used free of charge in any programs you might
+want to write. Should you modify/expand it, please make sure you do
+not distribute copies with modified ROM pointer order, or the two
+first program packages that use it, <B>Urania</B> and StarMaHP (since
+version 2.051 for HP48 and 3.1 for HP49), will most certainly
+crash. Details can be found in the source code. 
+
+<P>Unlike the rest of <B>Urania</B>,
+<EM>
+<P> This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation; either <a
+    href="COPYING">version 2</a> of the License, or (at your option)
+    any later version.
+
+<P> This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+<P> You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+</EM>
+
+<P> If you like this program and use it, please send me an email!
+
+<P ALIGN=CENTER>Download <A HREF="QVSOP-1.01.zip">here</A>
+
+<P><HR WIDTH=75% ALIGN=CENTER>
+<P ALIGN=CENTER><A HREF="../index.html">Back to Urania home page</A>
+
+<P><HR>
+<HR WIDTH="75%" ALIGN=CENTER>
+<HR WIDTH="50%" ALIGN=CENTER>
+<P ALIGN=CENTER>
+<I>&copy; Georg ZOTTI, 2000 - 2 - 12 <BR>
+<!--A HREF="mailto:gzotti@cg.tuwien.ac.at">
+   gzotti@cg.tuwien.ac.at</A--></I></P>
+
+</BODY>
+</HTML>
+
