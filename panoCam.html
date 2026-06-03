@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Make Stellarium panoramas from Google Earth</title>
+</head>
+<body>
+<h1>Make Stellarium panoramas from Google Earth</h1>
+
+<p>The open-source desktop planetarium <a href="https://stellarium.org">Stellarium</a> allows you to simulate the sky above a landscape.
+For better immersion you can input your own landscape panorama. The Stellarium User Guide explains the process.
+If you cannot create an on-site panorama photograph, the next best thing is creating an artificial horizon ("landscape" in Stellarium's terminology). </p>
+
+<p>Here is how to:</p>
+
+<ol>
+<li>Startup Google Earth. In the options dialog, set display of coordinates in decimal degrees mode.</li>
+<li>Find your spot of interest. Enter the displayed coordinates (enter all displayed digits, but not the degree symbol!) in the form below.
+In the Alt field, use the ground height displayed plus your eye height above ground, i.e. the value entered must be <em>absolute altitude</em> above sea level.
+If altitude is below ground, the result will be unusable (collision blocked by GE). </li>
+<li>Download the KML file, store it in your &lt;STELLARIUM-USERDATA&gt;\landscapes\&lt;newsite&gt;\pano.kml. </li>
+<li>Open in Google Earth. You will find a folder of snapshots. The scenes have names like 75-210, which means nadir distance 75 degrees, azimuth 210 (counted from North). </li>
+<li>Prepare "File-&gt;Save as... image": switch off title, compass, legend, scale. </li>
+<li>Save all scenes as still images with the scene name (80-45.jpg etc.), as JPG. Use FullHD size for the horizon area, the ground can be 1280x720. Pure sky images need not be stored. </li>
+<li>Caveat: Google Earth has 60 degrees lateral field of view. Make sure to use 16:9 image layout.</li>
+<li>Use <a href="https://hugin.sourceforge.net">Hugin</a> to combine the images. After images import, enter horizontal field of view (FOV) of 60 degrees.
+Instead of combining with the use of image features, you can directly set the angles from the filenames into the respective fields: pitch=-90+firstNum, yaw=secondNum. Crop away the navigational aids (right/bottom edges). Save the combined image as equirectangular panorama, 4096x2048 pixels. </li>
+<li>Use <a href="https://www.gimp.org">Gimp</a> or Photoshop to mask the blue sky and make it transparent, save as PNG. If your computer is "lightweight" in graphics capabilities, you may want to rescale to 2048x1024.</li>
+<li>Write a landscape.ini (double-click the pano group in Google Earth, copy-paste the text to landscape.ini)</li>
+</ol>
+
+<p> Notes
+<ul>
+     <li>If your interest is a view out of a 3D building from the 3D Buildings layer, note: the near clipping plane may cut away foreground architecture. There is no solution :-(.</li>
+     <li>If you want to use scenery3D, configure your pano as if exporting with the 3D Buildings layer (i.e., use an eyepoint high enough over ground to be above the additional terrain socket, if any), but export the images with the 3D Buildings layer switched off. Use this as background landscape in your scenery3d.ini.</li>
+     <li>Note that the SRTM DSM tends to smoothen sharp mountains, so don't blindly trust the near horizon, it could be higher, the terrain could be steeper!</li>
+</ul>
+
+<p>The images displayed are (c) Google, so the created panoramas are for personal use only!</p>
+
+
+<form id="formkml" name="formkml">
+Lat :&nbsp;<input size="10" name="lat" value="48.858"><br>
+Lon :&nbsp;<input size="10" name="lon" value="16.295"><br>
+Alt :&nbsp;<input size="10" name="alt" value="2"> m (absolute!!)<br>
+<input type="submit" value="Download KML"/><br>
+</form>
+
+<p align="center">I have found a similar PHP script somewhere in 2013, but without author note who deserves most credits. 
+Extended in 2013, 2018 &amp; 2022; 
+<!--Extended in 2013, 2018 &amp; 2022 by Georg.Zotti (at) univie.ac.at -->
+JavaScript version 2026 by gzotti.github.io 
+
+</p>
+
+<script>
+function buildHeader(lat, lon, alt) {
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+         '<kml xmlns="http://earth.google.com/kml/2.1">\n' +
+         '<Folder>\n' +
+         '    <name>pano</name>\n' +
+         '    <open>1</open>\n' +
+         '<description> Use these lines inside a Stellarium landscape.ini:\n' +
+         '[landscape]\n' +
+         'name = NEW-SITE\n' +
+         'author = ME\n' +
+         'description = Panorama created from Google Earth imagery\n' +
+         'type = spherical\n' +
+         'maptex = IMAGE.png\n' +
+         'angle_rotatez = 90\n' +
+         '[location]\n' +
+         'planet = Earth\n' +
+         'latitude = ' + lat + '\n' +
+         'longitude = ' + lon + '\n' +
+         'altitude = ' + alt + '\n' +
+         '</description>\n';
+}
+
+function buildFooter() {
+  return '</Folder>\n</kml>';
+}
+
+function buildPoint(tilt, heading, lat, lon, alt) {
+  return '    <Placemark>\n' +
+         '        <name>' + tilt + '-' + heading + '</name>\n' +
+         '        <Camera>\n' +
+         '            <longitude>' + lon + '</longitude>\n' +
+         '            <latitude>' + lat + '</latitude>\n' +
+         '            <altitude>' + alt + '</altitude>\n' +
+         '            <altitudeMode>absolute</altitudeMode>\n' +
+         '            <roll>0</roll>\n' +
+         '            <tilt>' + tilt + '</tilt>\n' +
+         '            <heading>' + heading + '</heading>\n' +
+         '            <gx:horizFov>60</gx:horizFov>\n' +
+         '        </Camera>\n' +
+         '        <Style>\n' +
+         '            <IconStyle>\n' +
+         '                <scale>1.1</scale>\n' +
+         '                <Icon>\n' +
+         '                </Icon>\n' +
+         '            </IconStyle>\n' +
+         '            <LabelStyle>\n' +
+         '                <color>ffffff</color>\n' +
+         '                <scale>1.1</scale>\n' +
+         '            </LabelStyle>\n' +
+         '        </Style>\n' +
+         '    </Placemark>\n';
+}
+
+function buildCircle(tilt, n, lat, lon, alt) {
+  var out = '<Folder>\n    <name>circle ' + tilt + '</name>\n    <open>1</open>\n';
+  for (var i = 0; i < n; i++) {
+    var heading = i * 360 / n;
+    out += buildPoint(tilt, heading, lat, lon, alt);
+  }
+  out += '</Folder>\n';
+  return out;
+}
+
+function buildKml(lat, lon, alt) {
+  return buildHeader(lat, lon, alt) +
+         buildCircle(0, 1, lat, lon, alt) +
+         buildCircle(30, 6, lat, lon, alt) +
+         buildCircle(55, 8, lat, lon, alt) +
+         buildCircle(80, 8, lat, lon, alt) +
+         buildCircle(105, 8, lat, lon, alt) +
+         buildCircle(130, 8, lat, lon, alt) +
+         buildCircle(155, 6, lat, lon, alt) +
+         buildFooter();
+}
+
+document.getElementById('formkml').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var lat = this.elements.lat.value;
+  var lon = this.elements.lon.value;
+  var alt = this.elements.alt.value;
+  var kml = buildKml(lat, lon, alt);
+  var blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'pano.kml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
+
