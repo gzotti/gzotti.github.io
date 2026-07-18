@@ -1,0 +1,3074 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Stellarium panorama — open-data capture</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/cesium@1.119.0/Build/Cesium/Widgets/widgets.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+            body {
+                font-family: sans-serif;
+                margin: 1em;
+                max-width: 900px;
+            }
+            #cesiumContainer {
+                width: 1024px;
+                height: 1024px;
+                position: absolute;
+                left: -10000px;
+                top: 0;
+            }
+            #previewWrap {
+                position: relative;
+                display: inline-block;
+                width: 100%;
+                max-width: 800px;
+                line-height: 0;
+            }
+            #previewGrid {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 0;
+            }
+            #preview {
+                width: 100%;
+                border: 1px solid #ccc;
+                image-rendering: pixelated;
+                position: relative;
+                z-index: 1;
+            }
+            #previewHorizon {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 2;
+            }
+            fieldset {
+                margin: 1em 0;
+            }
+            label {
+                display: inline-block;
+                min-width: 4em;
+            }
+            progress {
+                width: 100%;
+            }
+            .log {
+                font-family: monospace;
+                font-size: 12px;
+                background: #f4f4f4;
+                padding: 0.5em;
+                height: 200px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+            }
+            .warning {
+                background: #fff3cd;
+                border-left: 4px solid #ffa500;
+                padding: 0.75em;
+                margin: 1em 0;
+            }
+
+            /* ---- Optional first-person 360° viewer ---- */
+            #viewer360 {
+                position: fixed;
+                inset: 0;
+                z-index: 1000;
+                display: none;
+                background: #000;
+                touch-action: none;
+                cursor: grab;
+            }
+            #viewer360.open {
+                display: block;
+            }
+            #viewer360.dragging {
+                cursor: grabbing;
+            }
+            #viewer360 canvas {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+            #viewer360 .hud {
+                position: absolute;
+                left: 50%;
+                bottom: 18px;
+                transform: translateX(-50%);
+                font: 13px sans-serif;
+                color: #fff;
+                background: rgba(0, 0, 0, 0.45);
+                padding: 6px 12px;
+                border-radius: 14px;
+                pointer-events: none;
+                user-select: none;
+            }
+            #viewer360 .readout {
+                position: absolute;
+                top: 14px;
+                left: 16px;
+                font: 13px/1.2 ui-monospace, Menlo, Consolas, monospace;
+                color: #fff;
+                background: rgba(0, 0, 0, 0.5);
+                padding: 6px 10px;
+                border-radius: 10px;
+                pointer-events: none;
+                user-select: none;
+                white-space: pre;
+            }
+            #viewer360 .close {
+                position: absolute;
+                top: 14px;
+                right: 16px;
+                width: 36px;
+                height: 36px;
+                border: none;
+                border-radius: 50%;
+                background: rgba(0, 0, 0, 0.5);
+                color: #fff;
+                font-size: 22px;
+                line-height: 36px;
+                cursor: pointer;
+                text-align: center;
+            }
+            #viewer360 .close:hover {
+                background: rgba(0, 0, 0, 0.75);
+            }
+            #viewer360 .controls {
+                position: absolute;
+                top: 14px;
+                right: 64px;
+                font: 13px sans-serif;
+                color: #fff;
+                background: rgba(0, 0, 0, 0.5);
+                padding: 8px 12px;
+                border-radius: 10px;
+                user-select: none;
+                display: flex;
+                gap: 14px;
+                flex-wrap: wrap;
+                max-width: calc(100vw - 96px);
+            }
+            #viewer360 .controls label {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                min-width: 0;
+                cursor: pointer;
+            }
+            #viewer360 .controls input[type="checkbox"] {
+                margin: 0;
+                cursor: pointer;
+            }
+            #viewer360 .controls input[type="number"] {
+                background: rgba(255, 255, 255, 0.12);
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                border-radius: 4px;
+                padding: 1px 4px;
+                width: 4.2em;
+                font: inherit;
+            }
+            #viewer360 .controls .point-count {
+                opacity: 0.7;
+                font-variant-numeric: tabular-nums;
+            }
+
+            /* ---- Location picker popup ---- */
+            #mapPickerBtn {
+                margin-left: 0.5em;
+                cursor: pointer;
+            }
+            #mapPicker {
+                position: fixed;
+                inset: 0;
+                z-index: 2000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.55);
+            }
+            #mapPicker.open {
+                display: flex;
+            }
+            #mapPicker .dialog {
+                background: #fff;
+                width: min(720px, 92vw);
+                max-height: 90vh;
+                border-radius: 8px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            }
+            #mapPicker .head {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                border-bottom: 1px solid #ddd;
+            }
+            #mapPicker .head strong {
+                flex: 0 0 auto;
+            }
+            #mapPickerSearch {
+                flex: 1 1 auto;
+                min-width: 0;
+                padding: 4px 8px;
+                font: inherit;
+            }
+            #mapPicker .head button {
+                flex: 0 0 auto;
+                padding: 4px 10px;
+                cursor: pointer;
+            }
+            #mapPickerMap {
+                flex: 1 1 auto;
+                height: 420px;
+            }
+            #mapPicker .foot {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 8px 12px;
+                border-top: 1px solid #ddd;
+                font-size: 14px;
+            }
+            #mapPickerCoords {
+                font-family: monospace;
+                flex: 1 1 auto;
+            }
+            #mapPicker .foot button {
+                padding: 5px 14px;
+                cursor: pointer;
+            }
+            #mapPickerUse {
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Stellarium panorama — open-data capture</h1>
+
+        <p>
+            This page renders a 3D globe locally in a hidden Cesium viewer using
+            only open data (<a
+                href="https://www.esri.com/en-us/legal/terms/full-master-agreement"
+                >Esri World Imagery</a
+            >
+            +
+            <a href="https://registry.opendata.aws/terrain-tiles/"
+                >AWS Terrain Tiles</a
+            >), sweeps a virtual camera through 37 directions, and stitches the
+            captures into an equirectangular PNG suitable for Stellarium's
+            <code>maptex</code>.
+        </p>
+
+        <div class="warning">
+            <strong>What you get:</strong> accurate satellite imagery draped on
+            global terrain (SRTM-based), so distant mountain silhouettes appear
+            correctly on the horizon. <strong>What you don't get:</strong>
+            buildings — this data source has no 3D structures. Best suited to
+            rural / landscape observing sites. Attribution to Esri / AWS terrain
+            providers is required for non-personal use.
+        </div>
+
+        <fieldset>
+            <legend>Site</legend>
+            <label>Name</label>
+            <input id="siteName" value="My panorama site" size="32" /><br />
+            <label>Author</label>
+            <input
+                id="siteAuthor"
+                value=""
+                size="32"
+                placeholder="Your name (for landscape.ini)"
+            /><br />
+            <label>Lat</label> <input id="lat" value="48.858" size="12" /><br />
+            <label>Lon</label> <input id="lon" value="16.295" size="12" />
+            <button type="button" id="mapPickerBtn">🗺️ Pick on map…</button><br />
+            <label>Eye h.</label> <input id="eyeH" value="2" size="12" /> m
+            (above local terrain — sampled automatically)<br />
+            <label>Ground</label> <span id="groundEl">—</span> m (sea level,
+            filled in after capture)<br />
+            <label>Timezone</label>
+            <input
+                id="timezone"
+                value=""
+                size="20"
+                placeholder="e.g. Europe/Vienna (blank = system)"
+            /><br />
+            <label>Light pol.</label>
+            <input
+                id="lightPol"
+                type="number"
+                min="1"
+                max="9"
+                value="5"
+                size="3"
+            />
+            Bortle (1 = darkest, 9 = inner city)<br />
+            <label>Atm. ext.</label>
+            <input
+                id="atmExt"
+                type="number"
+                min="0.05"
+                max="0.5"
+                step="0.01"
+                value="0.2"
+                size="5"
+            />
+            extinction coefficient (Stellarium default 0.2)<br />
+        </fieldset>
+
+        <fieldset>
+            <legend>Output</legend>
+            <label>Preset</label>
+            <select id="resPreset">
+                <option value="2048">2048 × 1024 (Raspberry Pi)</option>
+                <option value="4096">4096 × 2048 (fast)</option>
+                <option value="8192" selected>
+                    8192 × 4096 (recommended)
+                </option>
+                <option value="16384">16384 × 8192 (max)</option>
+                <option value="custom">Custom</option>
+            </select><br />
+            <label>Size</label>
+            <input id="outW" value="8192" size="6" /> &times;
+            <input id="outH" value="4096" size="6" /> px (equirectangular)<br />
+            <label>FOV</label> <input id="fov" value="60" size="6" /> °
+            horizontal (per-capture)<br />
+            <label
+                ><input type="checkbox" id="cropSky" checked /> Crop sky
+                above</label
+            >
+            <input
+                id="cropSkyAlt"
+                type="number"
+                min="0"
+                max="89"
+                step="0.125"
+                value="33.75"
+                size="6"
+            />
+            ° (sets maptex_top)<br />
+            <label
+                ><input type="checkbox" id="cropNadir" checked /> Crop nadir
+                below</label
+            >
+            <input
+                id="cropNadirAlt"
+                type="number"
+                min="-89"
+                max="0"
+                step="0.125"
+                value="-50.625"
+                size="6"
+            />
+            ° (sets maptex_bottom)<br />
+            <label>Horizon bias</label>
+            <input
+                id="horizonBias"
+                type="number"
+                step="0.1"
+                value="0"
+                size="5"
+            />
+            ° (lift polygonal horizon — compensates for trees/buildings missing
+            from SRTM)<br />
+            <label
+                ><input type="checkbox" id="simplifyHorizon" /> Simplify
+                horizon</label
+            >
+            &nbsp;Tolerance
+            <input
+                id="horizonTolerance"
+                type="number"
+                value="0.5"
+                min="0.05"
+                max="10"
+                step="0.05"
+                size="4"
+            />
+            ° (Douglas-Peucker — fewer points in horizon.txt)
+            <span id="simplifyPointCount" style="color: #666"></span>
+        </fieldset>
+
+        <button id="run">Capture panorama</button>
+        <button id="downloadZip" disabled>
+            <strong>Download landscape ZIP</strong>
+        </button>
+        <button id="open360" disabled>Open 360° viewer</button>
+        <details style="display: inline-block; margin-left: 0.5em">
+            <summary>Individual files</summary>
+            <button id="downloadPng" disabled>PNG</button>
+            <button id="downloadIni" disabled>landscape.ini</button>
+            <button id="downloadHorizon" disabled>horizon.txt</button>
+            <button id="downloadDesc" disabled>description.en.utf8</button>
+        </details>
+
+        <p><progress id="prog" value="0" max="37"></progress></p>
+
+        <h3>Preview</h3>
+        <p>
+            <label
+                ><input type="checkbox" id="showHorizon" checked /> Show horizon
+                line</label
+            >
+            &nbsp;Thickness
+            <input
+                type="number"
+                id="horizonThickness"
+                value="4"
+                min="1"
+                max="20"
+                size="3"
+            />
+            px &nbsp;|&nbsp;
+            <label
+                ><input type="checkbox" id="showGrid" checked /> Show az/alt
+                grid</label
+            >
+        </p>
+        <div id="previewWrap">
+            <canvas id="previewGrid" width="8192" height="4096"></canvas>
+            <canvas id="preview" width="8192" height="4096"></canvas>
+            <canvas id="previewHorizon" width="8192" height="4096"></canvas>
+        </div>
+
+        <h3>Log</h3>
+        <div id="log" class="log"></div>
+
+        <div id="cesiumContainer"></div>
+
+        <!-- Optional first-person panorama viewer (hidden until opened) -->
+        <div id="viewer360">
+            <canvas></canvas>
+            <div class="controls">
+                <label
+                    ><input type="checkbox" id="showHorizon360" checked /> Show
+                    horizon line</label
+                >
+                <label
+                    ><input type="checkbox" id="showGrid360" checked /> Show
+                    az/alt grid</label
+                >
+                <label
+                    ><input type="checkbox" id="simplifyHorizon360" /> Simplify
+                    horizon</label
+                >
+                <label
+                    >Tolerance
+                    <input
+                        id="horizonTolerance360"
+                        type="number"
+                        value="0.5"
+                        min="0.05"
+                        max="10"
+                        step="0.05"
+                    />°<span
+                        id="simplifyPointCount360"
+                        class="point-count"
+                    ></span
+                ></label>
+            </div>
+            <button class="close" title="Close (Esc)">&times;</button>
+            <div class="readout" id="lookReadout">Az 000.0°  Alt +00.0°</div>
+            <div class="hud">
+                Drag to look · scroll or pinch to zoom · Esc to close
+            </div>
+        </div>
+
+        <div id="mapPicker">
+            <div class="dialog">
+                <div class="head">
+                    <strong>Pick location</strong>
+                    <input
+                        id="mapPickerSearch"
+                        type="text"
+                        placeholder="Search place name and press Enter…"
+                    />
+                    <button type="button" id="mapPickerSearchBtn">Search</button>
+                    <button type="button" id="mapPickerClose">&times;</button>
+                </div>
+                <div id="mapPickerMap"></div>
+                <div class="foot">
+                    <span id="mapPickerCoords">Click the map to choose a point</span>
+                    <button type="button" id="mapPickerCancel">Cancel</button>
+                    <button type="button" id="mapPickerUse">Use this location</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/cesium@1.119.0/Build/Cesium/Cesium.js"></script>
+        <script>
+            // =============================================================================
+            // Data sources — open, no key required
+            // =============================================================================
+            // Esri World Imagery: high-resolution satellite imagery, publicly served.
+            const ESRI_IMAGERY_URL =
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+
+            // AWS Open Data — Terrain Tiles in Mapzen "Terrarium" PNG-encoded format.
+            // Each pixel: height (m) = (R * 256 + G + B / 256) - 32768.
+            const TERRARIUM_URL_TPL =
+                "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png";
+            const TERRARIUM_MAX_LEVEL = 14; // dataset stops being useful past ~z14
+            const TERRARIUM_TILE_SIZE = 256;
+
+            // =============================================================================
+            // Capture plan — same camera angles the original PHP/KML produced.
+            // KML <tilt> is measured from local vertical (0 = nadir, 90 = horizon).
+            // Cesium pitch is measured from local horizon (0 = horizon, -90 = nadir).
+            // Conversion: cesiumPitch = tilt - 90.
+            // =============================================================================
+            const CIRCLES = [
+                { tilt: 0, n: 1 },
+                { tilt: 30, n: 6 },
+                { tilt: 55, n: 8 },
+                { tilt: 80, n: 8 },
+                { tilt: 105, n: 8 },
+                { tilt: 130, n: 8 },
+                { tilt: 155, n: 6 },
+            ];
+
+            const TILE_W = 1920; // each capture; 16:9 so horizontal FOV is honored
+            const TILE_H = 1080;
+
+            // Stellarium's spherical landscape default places the texture's left
+            // edge at azimuth 90° (East), with positive angle_rotatez rotating the
+            // panorama counter-clockwise as viewed from the zenith. This stitcher
+            // writes column 0 = south (yaw = ±π) and column W/2 = north (yaw = 0).
+            // East→South is a quarter turn — its sign depends on which CCW
+            // convention applies in your Stellarium build, so we emit 90° (matches
+            // the long-standing Zotti workflow) and add a verification note in
+            // landscape.ini. If cardinals appear rotated 180° in Stellarium, flip
+            // this to 270.
+            const ANGLE_ROTATEZ_DEFAULT = 90;
+
+            // Earth tones for the nadir cap (closes the "hole in ground" left when
+            // maptex_bottom > -90). Matches the muted brown the course recommends.
+            const BOTTOM_CAP_COLOR = "0.15,0.10,0.05";
+
+            const log = (...args) => {
+                const el = document.getElementById("log");
+                el.textContent += args.join(" ") + "\n";
+                el.scrollTop = el.scrollHeight;
+            };
+
+            function buildShots() {
+                const out = [];
+                for (const { tilt, n } of CIRCLES) {
+                    for (let i = 0; i < n; i++) {
+                        out.push({ tilt, heading: (i * 360) / n });
+                    }
+                }
+                return out;
+            }
+
+            // Wait until the current view has finished streaming, then let a few frames
+            // settle so the WebGL framebuffer reflects the final terrain + imagery.
+            //
+            // The original implementation insisted on `tilesLoaded` being true for 8
+            // straight frames and otherwise spun for a full 30 s. In practice tile loading
+            // often plateaus a hair short of "fully loaded" (a handful of edge tiles that
+            // 404 or never satisfy refinement), so almost every one of the 37 views ran
+            // out the entire 30 s timeout — that wait dominated the runtime.
+            //
+            // Instead we watch `tileLoadProgressEvent`, which reports how many tiles are
+            // still queued, and finish as soon as EITHER (a) the globe reports fully loaded
+            // for a few frames, or (b) that pending count stops changing for `quietMs`
+            // (loading has genuinely stalled — capturing now is correct, not a compromise).
+            // Note (b) only triggers when the queue is *static*; while tiles are actively
+            // streaming the count keeps changing, so an in-progress view is never cut off
+            // early and the horizon is never captured half-loaded. The hard timeout is just
+            // a last-resort backstop.
+            function waitForRender(
+                viewer,
+                { quietMs = 800, stableFrames = 4, hardTimeoutMs = 20000 } = {},
+            ) {
+                return new Promise((resolve) => {
+                    const scene = viewer.scene;
+                    const globe = scene.globe;
+                    const start = performance.now();
+                    let lastProgressAt = start;
+                    let lastPending = -1;
+                    let stable = 0;
+                    let finished = false;
+
+                    const stopListening =
+                        globe.tileLoadProgressEvent.addEventListener(
+                            (pending) => {
+                                if (pending !== lastPending) {
+                                    lastPending = pending;
+                                    lastProgressAt = performance.now();
+                                }
+                            },
+                        );
+
+                    const finish = () => {
+                        if (finished) return;
+                        finished = true;
+                        stopListening();
+                        let settle = 3;
+                        const settleTick = () =>
+                            settle-- > 0
+                                ? requestAnimationFrame(settleTick)
+                                : resolve();
+                        requestAnimationFrame(settleTick);
+                    };
+
+                    const tick = () => {
+                        if (finished) return;
+                        scene.requestRender();
+                        const now = performance.now();
+
+                        if (globe.tilesLoaded) {
+                            if (++stable >= stableFrames) return finish();
+                        } else {
+                            stable = 0;
+                        }
+                        if (now - start > 600 && now - lastProgressAt > quietMs)
+                            return finish();
+                        if (now - start > hardTimeoutMs) {
+                            log(
+                                "  [warn] render wait hit hard timeout — capturing anyway",
+                            );
+                            return finish();
+                        }
+                        requestAnimationFrame(tick);
+                    };
+                    tick();
+                });
+            }
+
+            // Cesium's PerspectiveFrustum.fov is the HORIZONTAL FOV when aspectRatio > 1
+            // (wide canvases) and the vertical FOV when aspectRatio <= 1. Since we render
+            // at 1920x1080 (aspect 16:9 > 1), we pass the horizontal FOV directly.
+            function setCameraHFov(viewer, hFovDeg, aspect) {
+                if (aspect > 1) {
+                    viewer.scene.camera.frustum.fov =
+                        Cesium.Math.toRadians(hFovDeg);
+                } else {
+                    // Narrow/portrait — convert hFov to vFov manually.
+                    const hFovRad = Cesium.Math.toRadians(hFovDeg);
+                    viewer.scene.camera.frustum.fov =
+                        2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
+                }
+            }
+
+            // =============================================================================
+            // Equirectangular stitcher — projects each perspective capture into a 2:1
+            // lat/lon image using a WebGL shader. Runs once per frame and accumulates.
+            // =============================================================================
+            const STITCH_VS = `
+  attribute vec2 a_pos;
+  varying vec2 v_uv;
+  void main() {
+    v_uv = a_pos * 0.5 + 0.5;
+    gl_Position = vec4(a_pos, 0.0, 1.0);
+  }
+`;
+
+            const STITCH_FS = `
+  precision highp float;
+  varying vec2 v_uv;
+  uniform sampler2D u_tex;       // perspective capture
+  uniform mat3 u_R;              // world->camera rotation
+  uniform float u_tanHalfHFov;   // tan(hFov/2) — horizontal focal length
+  uniform float u_tanHalfV;      // tan(vFov/2) — vertical focal length
+  uniform vec2 u_outSize;
+
+  void main() {
+    // Equirectangular pixel -> spherical direction (yaw=lon, pitch=lat).
+    // v_uv.x in [0,1] maps to yaw [-pi, pi] (heading from north, clockwise).
+    // v_uv.y in [0,1] maps to pitch [-pi/2 .. +pi/2]. Because gl_Position.y=+1
+    // (top of canvas) corresponds to v_uv.y=1, the top of the output image is
+    // the zenith and the bottom is the nadir — standard equirectangular.
+    float yaw   = (v_uv.x - 0.5) * 6.2831853;
+    float pitch = (v_uv.y - 0.5) * 3.1415926;
+
+    // Direction in world frame: ENU with x=east, y=north, z=up.
+    // heading 0 = +y (north), heading 90 = +x (east).
+    vec3 dir;
+    dir.x =  sin(yaw) * cos(pitch);
+    dir.y =  cos(yaw) * cos(pitch);
+    dir.z =  sin(pitch);
+
+    // Rotate into camera frame. Camera looks down -Z_cam, +X_cam right, +Y_cam up.
+    vec3 dc = u_R * dir;
+
+    // Behind camera? skip.
+    if (dc.z >= 0.0) { discard; }
+
+    // Project to image plane (pinhole). u spans the horizontal FOV, v the
+    // vertical FOV, using the EXACT focal lengths the capture was rendered with.
+    float u = (dc.x / -dc.z) / u_tanHalfHFov;   // [-1, +1] across hFov
+    float v = (dc.y / -dc.z) / u_tanHalfV;      // [-1, +1] across vFov
+
+    // Inside this capture's frame?
+    if (abs(u) > 1.0 || abs(v) > 1.0) { discard; }
+
+    // Texture V is inverted vs. our camera-frame Y because WebGL's default
+    // UNPACK_FLIP_Y_WEBGL=false stores the source canvas's top row at
+    // texture v=0 (i.e. texUv.y=0 reads the top of the source).
+    vec2 texUv = vec2(u * 0.5 + 0.5, 0.5 - v * 0.5);
+    gl_FragColor = texture2D(u_tex, texUv);
+  }
+`;
+
+            function makeStitcher(outCanvas) {
+                const gl = outCanvas.getContext("webgl", {
+                    preserveDrawingBuffer: true,
+                });
+                if (!gl) throw new Error("WebGL unavailable");
+
+                const compile = (type, src) => {
+                    const s = gl.createShader(type);
+                    gl.shaderSource(s, src);
+                    gl.compileShader(s);
+                    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+                        throw new Error(gl.getShaderInfoLog(s));
+                    return s;
+                };
+                const prog = gl.createProgram();
+                gl.attachShader(prog, compile(gl.VERTEX_SHADER, STITCH_VS));
+                gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, STITCH_FS));
+                gl.linkProgram(prog);
+                if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+                    throw new Error(gl.getProgramInfoLog(prog));
+                gl.useProgram(prog);
+
+                const buf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+                gl.bufferData(
+                    gl.ARRAY_BUFFER,
+                    new Float32Array([
+                        -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
+                    ]),
+                    gl.STATIC_DRAW,
+                );
+                const aPos = gl.getAttribLocation(prog, "a_pos");
+                gl.enableVertexAttribArray(aPos);
+                gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+                const tex = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_2D, tex);
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_WRAP_S,
+                    gl.CLAMP_TO_EDGE,
+                );
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_WRAP_T,
+                    gl.CLAMP_TO_EDGE,
+                );
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_MIN_FILTER,
+                    gl.LINEAR,
+                );
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_MAG_FILTER,
+                    gl.LINEAR,
+                );
+
+                gl.viewport(0, 0, outCanvas.width, outCanvas.height);
+                gl.clearColor(0, 0, 0, 0);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.enable(gl.BLEND);
+                gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+                const uTex = gl.getUniformLocation(prog, "u_tex");
+                const uR = gl.getUniformLocation(prog, "u_R");
+                const uTan = gl.getUniformLocation(prog, "u_tanHalfHFov");
+                const uTanV = gl.getUniformLocation(prog, "u_tanHalfV");
+
+                gl.uniform1i(uTex, 0);
+
+                return {
+                    addCapture(sourceCanvas, headingDeg, tiltDeg, frustum) {
+                        // Build rotation matrix that takes a world-frame direction
+                        // (ENU: x=east, y=north, z=up) and yields a camera-frame vector
+                        // where +X is right, +Y is up, and -Z is the look direction.
+                        const h = (headingDeg * Math.PI) / 180; // 0 = north, clockwise
+                        const p = ((tiltDeg - 90) * Math.PI) / 180; // Cesium pitch: 0=horizon, -90=down
+                        const ch = Math.cos(h),
+                            sh = Math.sin(h);
+                        const cp = Math.cos(p),
+                            sp = Math.sin(p);
+
+                        // Forward (look) direction in world ENU, given heading h and pitch p:
+                        //   fwd = (sin h cos p, cos h cos p, sin p)
+                        // Right vector (perpendicular, horizontal):
+                        //   right = (cos h, -sin h, 0)
+                        // Up vector = right x fwd (gives world-up consistent orientation):
+                        const fx = sh * cp,
+                            fy = ch * cp,
+                            fz = sp;
+                        const rx = ch,
+                            ry = -sh,
+                            rz = 0;
+                        const ux = ry * fz - rz * fy;
+                        const uy = rz * fx - rx * fz;
+                        const uz = rx * fy - ry * fx;
+
+                        // Camera-frame basis as rows: rotation R such that R * world = cam.
+                        // cam_x = right . world, cam_y = up . world, cam_z = -fwd . world (look = -Z).
+                        const R = new Float32Array([
+                            rx,
+                            ux,
+                            -fx,
+                            ry,
+                            uy,
+                            -fy,
+                            rz,
+                            uz,
+                            -fz,
+                        ]);
+
+                        gl.activeTexture(gl.TEXTURE0);
+                        gl.bindTexture(gl.TEXTURE_2D, tex);
+                        gl.texImage2D(
+                            gl.TEXTURE_2D,
+                            0,
+                            gl.RGBA,
+                            gl.RGBA,
+                            gl.UNSIGNED_BYTE,
+                            sourceCanvas,
+                        );
+
+                        gl.uniformMatrix3fv(uR, false, R);
+                        // Read the focal lengths Cesium actually rendered with, straight from its
+                        // perspective projection matrix (column-major Matrix4): m00 = 1/tanHalfH,
+                        // m11 = 1/tanHalfV. This makes the reprojection exact regardless of how
+                        // Cesium resolved the field of view vs. the canvas aspect ratio — no more
+                        // guessing the vertical FOV from the canvas shape.
+                        const pm = frustum.projectionMatrix;
+                        gl.uniform1f(uTan, 1.0 / pm[0]); // tan(hFov/2)
+                        gl.uniform1f(uTanV, 1.0 / pm[5]); // tan(vFov/2)
+
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    },
+                };
+            }
+
+            // =============================================================================
+            // Terrain provider — decodes AWS Terrarium PNG tiles into Cesium heightmaps.
+            //
+            // We can't use Cesium.CustomHeightmapTerrainProvider directly because it
+            // hard-codes skirtHeight=0, which leaves visible cracks at every tile/LOD
+            // boundary. The cracks manifest as a thin horizontal band of "missing"
+            // geometry, very obvious at grazing angles like the horizon. Here we
+            // implement the TerrainProvider interface ourselves and return
+            // HeightmapTerrainData with a per-tile skirt sized to the local relief.
+            // =============================================================================
+            function makeTerrariumTerrainProvider() {
+                const tilingScheme = new Cesium.WebMercatorTilingScheme();
+                const tileSize = TERRARIUM_TILE_SIZE;
+
+                // Off-screen canvas reused for every tile decode.
+                const decodeCanvas = document.createElement("canvas");
+                decodeCanvas.width = decodeCanvas.height = tileSize;
+                const decodeCtx = decodeCanvas.getContext("2d", {
+                    willReadFrequently: true,
+                });
+
+                // Decode cache. Each Terrarium PNG is fetched + decoded once and its height
+                // grid is kept in memory. Across a 360° sweep from a single eye point the
+                // same tiles are requested repeatedly (LOD churn, re-entry when panning back
+                // around, the initial terrain elevation sample), so caching turns all but the
+                // first request for a tile into a synchronous memory hit. `inflight` also
+                // collapses concurrent requests for the same tile into a single fetch.
+                const heightCache = new Map(); // "z/x/y" -> { heights, minH, maxH }
+                const inflight = new Map(); // "z/x/y" -> Promise<{ heights, minH, maxH }>
+
+                // Cesium removed this static helper in 1.111; replicate its formula directly.
+                const levelZeroMGE =
+                    (tilingScheme.ellipsoid.maximumRadius * 2 * Math.PI * 0.25) /
+                    (tileSize * tilingScheme.getNumberOfXTilesAtLevel(0));
+
+                const errorEvent = new Cesium.Event();
+                const credit = new Cesium.Credit("AWS Terrain Tiles", false);
+
+                async function fetchPixelData(x, y, level) {
+                    const url = TERRARIUM_URL_TPL.replace("{z}", level)
+                        .replace("{x}", x)
+                        .replace("{y}", y);
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    await new Promise((res, rej) => {
+                        img.onload = res;
+                        img.onerror = () =>
+                            rej(new Error("terrain tile fetch failed: " + url));
+                        img.src = url;
+                    });
+                    decodeCtx.clearRect(0, 0, tileSize, tileSize);
+                    decodeCtx.drawImage(img, 0, 0);
+                    return decodeCtx.getImageData(0, 0, tileSize, tileSize)
+                        .data;
+                }
+
+                function buildHeights(pixels) {
+                    const heights = new Float32Array(tileSize * tileSize);
+                    let minH = Infinity,
+                        maxH = -Infinity;
+                    for (let i = 0; i < heights.length; i++) {
+                        const r = pixels[i * 4],
+                            g = pixels[i * 4 + 1],
+                            b = pixels[i * 4 + 2];
+                        const h = r * 256 + g + b / 256 - 32768;
+                        heights[i] = h;
+                        if (h < minH) minH = h;
+                        if (h > maxH) maxH = h;
+                    }
+                    return { heights, minH, maxH };
+                }
+
+                function flatTile(skirt = 100) {
+                    return new Cesium.HeightmapTerrainData({
+                        buffer: new Float32Array(tileSize * tileSize),
+                        width: tileSize,
+                        height: tileSize,
+                        skirtHeight: skirt,
+                    });
+                }
+
+                // Cached, de-duplicated tile decode. Returns the same { heights, minH, maxH }
+                // object for repeat requests instead of hitting the network again.
+                async function decodeTile(x, y, level) {
+                    const key = level + "/" + x + "/" + y;
+                    const cached = heightCache.get(key);
+                    if (cached) return cached;
+                    let p = inflight.get(key);
+                    if (!p) {
+                        p = (async () => {
+                            const px = await fetchPixelData(x, y, level);
+                            return buildHeights(px);
+                        })();
+                        inflight.set(key, p);
+                    }
+                    try {
+                        const result = await p;
+                        heightCache.set(key, result);
+                        return result;
+                    } finally {
+                        inflight.delete(key);
+                    }
+                }
+
+                return {
+                    get tilingScheme() {
+                        return tilingScheme;
+                    },
+                    get ready() {
+                        return true;
+                    },
+                    get readyPromise() {
+                        return Promise.resolve(true);
+                    },
+                    get errorEvent() {
+                        return errorEvent;
+                    },
+                    get credit() {
+                        return credit;
+                    },
+                    get hasWaterMask() {
+                        return false;
+                    },
+                    get hasVertexNormals() {
+                        return false;
+                    },
+                    get availability() {
+                        return undefined;
+                    },
+
+                    getLevelMaximumGeometricError(level) {
+                        return levelZeroMGE / (1 << level);
+                    },
+                    getTileDataAvailable(x, y, level) {
+                        return level <= TERRARIUM_MAX_LEVEL;
+                    },
+                    loadTileDataAvailability() {
+                        return undefined;
+                    },
+
+                    async requestTileGeometry(x, y, level) {
+                        if (level > TERRARIUM_MAX_LEVEL) return flatTile();
+                        try {
+                            const { heights, minH, maxH } = await decodeTile(
+                                x,
+                                y,
+                                level,
+                            );
+                            // Skirt sized to actual local relief (×2 safety margin), with a 100 m
+                            // floor so even flat tiles seal cleanly against neighbors at coarser
+                            // LOD. Skirts hang below the tile edge and are hidden by adjacent
+                            // geometry — they're invisible except where they fill cracks.
+                            const skirtHeight = Math.max(
+                                100,
+                                (maxH - minH) * 2,
+                            );
+                            // Hand Cesium its own copy of the height grid: the terrain mesher runs
+                            // in a Web Worker and may transfer (neuter) the backing ArrayBuffer,
+                            // which would corrupt the cached entry for any later request.
+                            return new Cesium.HeightmapTerrainData({
+                                buffer: heights.slice(),
+                                width: tileSize,
+                                height: tileSize,
+                                skirtHeight,
+                            });
+                        } catch (e) {
+                            return flatTile();
+                        }
+                    },
+                };
+            }
+
+            // =============================================================================
+            // Main
+            // =============================================================================
+            let viewer;
+
+            async function initCesium() {
+                if (viewer) return;
+                log(
+                    "Initializing Cesium viewer (Esri imagery + AWS Terrarium terrain)…",
+                );
+                // We don't use Cesium ion — silence its missing-token warning.
+                Cesium.Ion.defaultAccessToken = "";
+
+                // Stream far more aggressively. The defaults (50 total / 6 per host) are tuned
+                // for gentle interactive panning; for a one-shot offline capture we want to
+                // saturate the connection so each view finishes loading quickly. Esri and AWS
+                // both sit behind CDNs that tolerate many parallel connections.
+                Cesium.RequestScheduler.maximumRequests = 64;
+                Cesium.RequestScheduler.maximumRequestsPerServer = 18;
+
+                const imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                    url: ESRI_IMAGERY_URL,
+                    credit: new Cesium.Credit(
+                        "Imagery © Esri, Maxar, Earthstar Geographics, USDA, USGS, AeroGRID, IGN",
+                        true,
+                    ),
+                    // Esri's coverage past z17 is patchy in many regions; capping here
+                    // avoids 404s that would otherwise leave untextured terrain patches.
+                    maximumLevel: 17,
+                });
+
+                viewer = new Cesium.Viewer("cesiumContainer", {
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    timeline: false,
+                    animation: false,
+                    navigationHelpButton: false,
+                    fullscreenButton: false,
+                    selectionIndicator: false,
+                    infoBox: false,
+                    baseLayer: new Cesium.ImageryLayer(imageryProvider),
+                    terrainProvider: makeTerrariumTerrainProvider(),
+                    skyBox: false,
+                    // Keep the last rendered frame in the WebGL buffer so the stitcher can copy
+                    // it out reliably; without this the buffer can be cleared after compositing
+                    // and yield blank/partial captures.
+                    contextOptions: {
+                        webgl: {
+                            preserveDrawingBuffer: true,
+                            powerPreference: "high-performance",
+                            // Cesium defaults this to false; without it the
+                            // framebuffer has no alpha channel and the
+                            // TRANSPARENT backgroundColor composites as black,
+                            // so the exported pano ends up with a solid black
+                            // sky instead of a transparent one.
+                            alpha: true,
+                        },
+                    },
+                });
+                viewer.scene.skyAtmosphere.show = false;
+                viewer.scene.fog.enabled = false;
+                viewer.scene.requestRenderMode = false; // we'll poll postRender
+                // Make the background transparent so we can mask sky in Stellarium.
+                viewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
+
+                // Suppress the rendering effects that paint visible artifacts on the
+                // horizon: ground-atmosphere halo, day/night terminator shading, and the
+                // dynamic horizon-relative near-plane that can clip foreground geometry.
+                viewer.scene.globe.showGroundAtmosphere = false;
+                viewer.scene.globe.enableLighting = false;
+                viewer.scene.globe.dynamicAtmosphereLighting = false;
+                viewer.scene.globe.dynamicAtmosphereLightingFromSun = false;
+                viewer.scene.globe.atmosphereLightIntensity = 0.0;
+                // Tile detail. The horizon silhouette is determined by which tiles are
+                // *loaded* (frustum + far plane), and is essentially independent of
+                // screen-space error: distant terrain barely refines at any SSE, so its
+                // outline against the sky is the same whether SSE is 1.0 or 2.0. SSE only
+                // controls foreground triangle density, which lives below the horizon line.
+                // The original 1.0 therefore roughly quadrupled the tiles loaded per view for
+                // no gain on the horizon. Running at Cesium's well-tuned default (2.0) is a
+                // big speedup with no effect on horizon fidelity. Lower this toward 1.0 only
+                // if you want crisper near-ground detail and don't mind a much slower capture.
+                viewer.scene.globe.maximumScreenSpaceError = 2.0;
+                // Preload coarse ancestors so every tile has a crack-free fallback ready.
+                viewer.scene.globe.preloadAncestors = true;
+                // Each view is captured only AFTER it has fully loaded, so the "missing band
+                // while the far side streams in" race never reaches the framebuffer. That
+                // makes sibling preloading pure overhead here — disabling it shrinks the
+                // working set per view so each shot settles sooner.
+                viewer.scene.globe.preloadSiblings = false;
+                // Keep a large resident tile cache so terrain/imagery fetched for one of the
+                // 37 overlapping views isn't evicted before a neighbouring view reuses it.
+                // Together with the terrain decode cache, most tiles are fetched and decoded
+                // exactly once across the whole sweep.
+                viewer.scene.globe.tileCacheSize = 1000;
+                // Tighten the near plane so foreground terrain isn't clipped from low alt.
+                viewer.scene.camera.frustum.near = 0.1;
+                viewer.scene.camera.frustum.far = 5_000_000;
+                // Ensure the drawing buffer is sized to the (square) container before we read
+                // viewer.canvas dimensions for the aspect ratio.
+                viewer.resize();
+                log("Globe + terrain ready.");
+            }
+
+            // Absolute altitude (above WGS84 ellipsoid) used for the latest capture,
+            // stored so downloadIni can write the same value Stellarium needs.
+            let lastAbsoluteAlt = 0;
+
+            async function capturePanorama() {
+                await initCesium();
+
+                const lat = parseFloat(document.getElementById("lat").value);
+                const lon = parseFloat(document.getElementById("lon").value);
+                const eyeH = parseFloat(document.getElementById("eyeH").value);
+                const hFov = parseFloat(document.getElementById("fov").value);
+                const outW = parseInt(
+                    document.getElementById("outW").value,
+                    10,
+                );
+                const outH = parseInt(
+                    document.getElementById("outH").value,
+                    10,
+                );
+
+                // Sample the terrain so we can place the camera at (terrain + eye height).
+                // Without this, alt=2m at a 200m-elevation site puts the camera underground.
+                // NOTE: sampleTerrainMostDetailed needs `availability` info that
+                // CustomHeightmapTerrainProvider doesn't expose, so we use the fixed-level
+                // sampleTerrain at TERRARIUM_MAX_LEVEL, which just invokes our callback.
+                log("Sampling terrain elevation at site…");
+                const sampleCarto = Cesium.Cartographic.fromDegrees(lon, lat);
+                const sampled = await Cesium.sampleTerrain(
+                    viewer.terrainProvider,
+                    TERRARIUM_MAX_LEVEL,
+                    [sampleCarto],
+                );
+                const groundEl = sampled[0].height;
+                const alt = groundEl + eyeH;
+                lastAbsoluteAlt = alt;
+                document.getElementById("groundEl").textContent =
+                    groundEl.toFixed(1);
+                log(
+                    `  ground = ${groundEl.toFixed(1)} m, eye = ${eyeH} m, camera abs alt = ${alt.toFixed(1)} m`,
+                );
+
+                const preview = document.getElementById("preview");
+                preview.width = outW;
+                preview.height = outH;
+                cachedHorizonProfile = null;
+                clearHorizonOverlay();
+                drawPreviewGrid();
+                const stitcher = makeStitcher(preview);
+
+                // Match the perspective capture FOV to the configured horizontal FOV, and
+                // pin the camera aspect ratio to the ACTUAL render buffer (the hidden
+                // #cesiumContainer is square, 1024x1024). Previously this forced a 16:9 ratio
+                // that didn't match the square canvas, so Cesium rendered a ~36° vertical FOV
+                // while the stitcher assumed 60° — stretching every tile vertically and
+                // misaligning the rings. Keeping the camera aspect equal to the canvas means
+                // the projection matrix the stitcher reads back is exactly what was drawn.
+                const aspect = viewer.canvas.width / viewer.canvas.height;
+                setCameraHFov(viewer, hFov, aspect);
+                viewer.scene.camera.frustum.aspectRatio = aspect;
+
+                const shots = buildShots();
+                const prog = document.getElementById("prog");
+                prog.max = shots.length;
+                prog.value = 0;
+
+                for (const { tilt, heading } of shots) {
+                    log(
+                        `Capturing tilt=${tilt}° heading=${heading.toFixed(1)}°`,
+                    );
+                    viewer.camera.setView({
+                        destination: Cesium.Cartesian3.fromDegrees(
+                            lon,
+                            lat,
+                            alt,
+                        ),
+                        orientation: {
+                            heading: Cesium.Math.toRadians(heading),
+                            pitch: Cesium.Math.toRadians(tilt - 90),
+                            roll: 0,
+                        },
+                    });
+                    await waitForRender(viewer);
+                    stitcher.addCapture(
+                        viewer.canvas,
+                        heading,
+                        tilt,
+                        viewer.camera.frustum,
+                    );
+                    prog.value++;
+                }
+
+                log("Done.");
+                drawHorizonOverlay();
+                document.getElementById("downloadZip").disabled = false;
+                document.getElementById("downloadPng").disabled = false;
+                document.getElementById("downloadIni").disabled = false;
+                document.getElementById("downloadHorizon").disabled = false;
+                document.getElementById("downloadDesc").disabled = false;
+                document.getElementById("open360").disabled = false;
+            }
+
+            // =============================================================================
+            // Common save helper.
+            // =============================================================================
+            function saveBlob(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            // Filesystem-safe slug (used for the ZIP folder name and the ID
+            // Stellarium derives from it).
+            function slugify(name) {
+                const base = (name || "MySite")
+                    .toString()
+                    .normalize("NFKD")
+                    .replace(/[̀-ͯ]/g, "") // strip combining diacritics
+                    .replace(/[^a-zA-Z0-9_-]+/g, "_")
+                    .replace(/^_+|_+$/g, "")
+                    .substring(0, 64);
+                return base || "MySite";
+            }
+
+            function escapeHtml(s) {
+                return (s || "").replace(
+                    /[&<>"']/g,
+                    (c) =>
+                        ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                            "'": "&#39;",
+                        })[c],
+                );
+            }
+
+            // Signed DMS string the way Stellarium has historically printed it
+            // (e.g. +48d51'29"). Decimal also works but DMS matches the user
+            // guide examples.
+            function formatDMS(deg) {
+                const sign = deg >= 0 ? "+" : "-";
+                const abs = Math.abs(deg);
+                let d = Math.floor(abs);
+                const mFloat = (abs - d) * 60;
+                let m = Math.floor(mFloat);
+                let s = Math.round((mFloat - m) * 60);
+                if (s === 60) {
+                    s = 0;
+                    m += 1;
+                }
+                if (m === 60) {
+                    m = 0;
+                    d += 1;
+                }
+                return `${sign}${d}d${String(m).padStart(2, "0")}'${String(s).padStart(2, "0")}"`;
+            }
+
+            // =============================================================================
+            // Snapshot of every site/output parameter from the form.
+            // =============================================================================
+            function getSiteParams() {
+                const $ = (id) => document.getElementById(id);
+                const num = (id, dflt) => {
+                    const v = parseFloat($(id).value);
+                    return isFinite(v) ? v : dflt;
+                };
+                const name = $("siteName").value.trim() || "My panorama site";
+                const cropSky = $("cropSky").checked;
+                const cropNadir = $("cropNadir").checked;
+                return {
+                    name,
+                    slug: slugify(name),
+                    author: $("siteAuthor").value.trim(),
+                    lat: num("lat", 0),
+                    lon: num("lon", 0),
+                    eyeH: num("eyeH", 2),
+                    absAlt: lastAbsoluteAlt,
+                    timezone: $("timezone").value.trim(),
+                    lightPol: Math.max(
+                        1,
+                        Math.min(9, parseInt($("lightPol").value, 10) || 5),
+                    ),
+                    atmExt: num("atmExt", 0.2),
+                    fov: num("fov", 60),
+                    outW: parseInt($("outW").value, 10),
+                    outH: parseInt($("outH").value, 10),
+                    cropSky,
+                    cropSkyAlt: cropSky ? num("cropSkyAlt", 33.75) : 90,
+                    cropNadir,
+                    cropNadirAlt: cropNadir ? num("cropNadirAlt", -50.625) : -90,
+                    horizonBias: num("horizonBias", 0),
+                };
+            }
+
+            // =============================================================================
+            // Vertical crop of a canvas to the altitude band [bottomDeg, topDeg].
+            // Width is preserved; only the rows between rTop and rBot are kept.
+            // If crop bounds cover the entire image, returns the source unchanged.
+            // =============================================================================
+            function applyCrop(srcCanvas, topDeg, botDeg) {
+                const W = srcCanvas.width;
+                const H = srcCanvas.height;
+                const rTop = Math.max(
+                    0,
+                    Math.min(H, Math.round(((90 - topDeg) / 180) * H)),
+                );
+                const rBot = Math.max(
+                    rTop,
+                    Math.min(H, Math.round(((90 - botDeg) / 180) * H)),
+                );
+                const newH = rBot - rTop;
+                if (newH <= 0) return srcCanvas;
+                if (rTop === 0 && rBot === H) return srcCanvas;
+                const out = document.createElement("canvas");
+                out.width = W;
+                out.height = newH;
+                out.getContext("2d").drawImage(
+                    srcCanvas,
+                    0,
+                    rTop,
+                    W,
+                    newH,
+                    0,
+                    0,
+                    W,
+                    newH,
+                );
+                return out;
+            }
+
+            // =============================================================================
+            // landscape.ini for the package. Emits every field the SEAC2025 course
+            // recommends and references the auxiliary files in the same folder.
+            // =============================================================================
+            function buildLandscapeIni(params) {
+                const author = params.author || "ME";
+                const desc =
+                    "Open-data panorama generated from Esri World Imagery draped on AWS Terrain Tiles.";
+                const out = [];
+                out.push("[landscape]");
+                out.push(`name = ${params.name}`);
+                out.push(`author = ${author}`);
+                out.push(`description = ${desc}`);
+                out.push("type = spherical");
+                out.push("maptex = pano.png");
+                out.push("");
+                out.push(
+                    "# angle_rotatez rotates the panorama around the zenith.",
+                );
+                out.push(
+                    "# The capture writes column 0 = SOUTH, column W/2 = NORTH;",
+                );
+                out.push(
+                    "# Stellarium's spherical-landscape default puts the left edge",
+                );
+                out.push(
+                    "# at azimuth 90° (East), so we apply a quarter turn. If",
+                );
+                out.push(
+                    "# cardinals appear rotated 180° in Stellarium, change to 270.",
+                );
+                out.push(`angle_rotatez = ${ANGLE_ROTATEZ_DEFAULT}`);
+                if (params.cropSky || params.cropNadir) {
+                    out.push("");
+                    out.push(
+                        "# Texture was cropped to save GPU memory — declare the",
+                    );
+                    out.push(
+                        "# altitude range its top and bottom edges represent.",
+                    );
+                    out.push(`maptex_top = ${params.cropSkyAlt}`);
+                    out.push(`maptex_bottom = ${params.cropNadirAlt}`);
+                    if (params.cropNadir) {
+                        out.push(`bottom_cap_color = ${BOTTOM_CAP_COLOR}`);
+                    }
+                }
+                out.push("");
+                out.push(
+                    "# Polygonal horizon. Used by Stellarium for rise/set and",
+                );
+                out.push(
+                    "# refraction calculations regardless of texture transparency.",
+                );
+                out.push("polygonal_horizon_list = horizon.txt");
+                out.push("polygonal_horizon_list_mode = azDeg_altDeg");
+                out.push("polygonal_angle_rotatez = 0");
+                out.push("");
+                out.push(
+                    "# Tessellation. Defaults are fine on modern GPUs; lower",
+                );
+                out.push(
+                    "# both values for very old hardware (e.g. Raspberry Pi).",
+                );
+                out.push("tesselate_rows = 32");
+                out.push("tesselate_cols = 64");
+                out.push("");
+                out.push("[location]");
+                out.push(`name = ${params.name}`);
+                out.push("planet = Earth");
+                out.push(`latitude = ${formatDMS(params.lat)}`);
+                out.push(`longitude = ${formatDMS(params.lon)}`);
+                out.push(`altitude = ${params.absAlt.toFixed(2)}`);
+                out.push(`light_pollution = ${params.lightPol}`);
+                out.push(
+                    `atmospheric_extinction_coefficient = ${params.atmExt}`,
+                );
+                if (params.timezone) {
+                    out.push(`timezone = ${params.timezone}`);
+                }
+                out.push("");
+                return out.join("\n");
+            }
+
+            // =============================================================================
+            // description.en.utf8 — Stellarium displays this in the landscape dialog.
+            // HTML is supported.
+            // =============================================================================
+            function buildDescription(params) {
+                const today = new Date().toISOString().slice(0, 10);
+                const author = escapeHtml(params.author || "(unspecified)");
+                const biasNote =
+                    params.horizonBias !== 0
+                        ? `<p><em>A bias of ${params.horizonBias.toFixed(2)}° has been applied to the polygonal horizon to compensate for trees and buildings missing from the SRTM-derived terrain.</em></p>`
+                        : "";
+                return `<h2>${escapeHtml(params.name)}</h2>
+<p>Equirectangular panorama for Stellarium, generated from open-data sources.</p>
+
+<h3>Site</h3>
+<ul>
+<li>Latitude: ${params.lat.toFixed(5)}°</li>
+<li>Longitude: ${params.lon.toFixed(5)}°</li>
+<li>Camera altitude (ground + eye height): ${params.absAlt.toFixed(1)} m</li>
+</ul>
+
+<h3>Source data</h3>
+<ul>
+<li><strong>Imagery:</strong> Esri World Imagery — © Esri, Maxar, Earthstar Geographics, USDA, USGS, AeroGRID, IGN.</li>
+<li><strong>Terrain:</strong> AWS Open Data — Terrarium PNG tiles (SRTM / ASTER GDEM lineage).</li>
+<li><strong>Capture date:</strong> ${today}</li>
+<li><strong>Author:</strong> ${author}</li>
+</ul>
+
+${biasNote}<p>See LICENSE.txt for attribution and reuse terms.</p>
+`;
+            }
+
+            // =============================================================================
+            // LICENSE.txt — attribution requirements the bundled data demands plus a
+            // CC-BY-SA grant for the metadata produced here.
+            // =============================================================================
+            function buildLicense(params) {
+                return `LICENSE / ATTRIBUTION
+======================
+
+This landscape package contains derivative imagery generated from third-party
+open-data sources. Attribution is required for non-personal redistribution.
+
+Imagery
+-------
+Esri World Imagery
+  https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9
+  © Esri, Maxar, Earthstar Geographics, USDA, USGS, AeroGRID, IGN
+  Terms: https://www.esri.com/en-us/legal/terms/full-master-agreement
+
+Terrain
+-------
+AWS Open Data - Terrain Tiles
+  https://registry.opendata.aws/terrain-tiles/
+  Sourced from public-domain DEMs (SRTM, ASTER GDEM, NED, GMTED, ETOPO1).
+  Tile format: Mapzen "Terrarium" PNG.
+
+Site metadata
+-------------
+Name:      ${params.name}
+Author:    ${params.author || "(unspecified)"}
+Latitude:  ${params.lat.toFixed(5)}
+Longitude: ${params.lon.toFixed(5)}
+Altitude:  ${params.absAlt.toFixed(1)} m
+
+This landscape configuration (landscape.ini, description.en.utf8, horizon.txt
+and this LICENSE) is released under CC-BY-SA 4.0 by the author named above,
+except where superseded by upstream data licenses listed above.
+`;
+            }
+
+            // =============================================================================
+            // horizon.txt — Stellarium polygonal horizon (azDeg_altDeg mode).
+            //
+            // Azimuth convention emitted here: 0 = True North, increasing East
+            // (compass), matching Stellarium's documented expectation. The capture
+            // writes column 0 = south, so we look up profile[((az + 180) mod 360) /
+            // 360 * W] — same mapping the preview grid uses (azToX).
+            //
+            // Optional Douglas-Peucker simplification reduces the per-degree curve
+            // to a sparse control-point set; Stellarium linearly interpolates
+            // between successive entries.
+            // =============================================================================
+            function buildHorizonText(params, profile, simplify, tolDeg) {
+                const W = profile.length;
+                const azToCol = (az) =>
+                    Math.min(
+                        W - 1,
+                        Math.floor((((az + 180) % 360) / 360) * W),
+                    );
+                let body = `# Polygonal horizon profile for Stellarium (azDeg_altDeg mode).
+#
+# Azimuth: 0 = True North, increasing toward East (compass convention).
+# Format: az(integer) alt(degrees)
+#
+# Site: latitude ${params.lat}, longitude ${params.lon}
+# Auto-generated from the captured panorama skyline (terrain vs. sky).
+# Horizon bias applied: ${params.horizonBias.toFixed(2)}°
+#
+`;
+                if (simplify) {
+                    const pts = new Array(360);
+                    for (let az = 0; az < 360; az++) {
+                        const a = profile[azToCol(az)];
+                        pts[az] = [
+                            az,
+                            (isFinite(a) ? a : 0) + params.horizonBias,
+                        ];
+                    }
+                    const simp = dpSimplify(pts, tolDeg);
+                    body += `# Simplified via Douglas-Peucker, tolerance ${tolDeg}° -> ${simp.length} control points.\n`;
+                    for (const [az, alt] of simp) {
+                        body += `${az} ${alt.toFixed(2)}\n`;
+                    }
+                } else {
+                    for (let az = 0; az < 360; az++) {
+                        const a = profile[azToCol(az)];
+                        const v = (isFinite(a) ? a : 0) + params.horizonBias;
+                        body += `${az} ${v.toFixed(2)}\n`;
+                    }
+                }
+                return body;
+            }
+
+            // Iterative Douglas-Peucker on a generic [[x, y], ...] polyline.
+            function dpSimplify(pts, tol) {
+                if (pts.length < 2) return pts.slice();
+                const keep = new Uint8Array(pts.length);
+                keep[0] = keep[pts.length - 1] = 1;
+                const stack = [[0, pts.length - 1]];
+                while (stack.length) {
+                    const [i, j] = stack.pop();
+                    const x1 = pts[i][0],
+                        y1 = pts[i][1];
+                    const x2 = pts[j][0],
+                        y2 = pts[j][1];
+                    const dx = x2 - x1,
+                        dy = y2 - y1;
+                    const len = Math.hypot(dx, dy);
+                    let maxD = 0,
+                        maxK = -1;
+                    for (let k = i + 1; k < j; k++) {
+                        const x = pts[k][0],
+                            y = pts[k][1];
+                        const d =
+                            len === 0
+                                ? Math.hypot(x - x1, y - y1)
+                                : Math.abs(dx * (y1 - y) - (x1 - x) * dy) /
+                                  len;
+                        if (d > maxD) {
+                            maxD = d;
+                            maxK = k;
+                        }
+                    }
+                    if (maxD > tol && maxK > -1) {
+                        keep[maxK] = 1;
+                        stack.push([i, maxK]);
+                        stack.push([maxK, j]);
+                    }
+                }
+                const out = [];
+                for (let i = 0; i < pts.length; i++)
+                    if (keep[i]) out.push(pts[i]);
+                return out;
+            }
+
+            // =============================================================================
+            // Encode the preview canvas as PNG, applying maptex_top / maptex_bottom
+            // cropping if enabled.
+            // =============================================================================
+            function getPngBlob() {
+                const preview = document.getElementById("preview");
+                const params = getSiteParams();
+                const exportCanvas = applyCrop(
+                    preview,
+                    params.cropSkyAlt,
+                    params.cropNadirAlt,
+                );
+                return new Promise((resolve) => {
+                    exportCanvas.toBlob(
+                        (blob) => resolve(blob),
+                        "image/png",
+                    );
+                });
+            }
+
+            async function downloadPng() {
+                const blob = await getPngBlob();
+                saveBlob(blob, "pano.png");
+            }
+
+            function downloadIni() {
+                const params = getSiteParams();
+                saveBlob(
+                    new Blob([buildLandscapeIni(params)], {
+                        type: "text/plain",
+                    }),
+                    "landscape.ini",
+                );
+            }
+
+            function downloadDesc() {
+                const params = getSiteParams();
+                saveBlob(
+                    new Blob([buildDescription(params)], {
+                        type: "text/plain;charset=utf-8",
+                    }),
+                    "description.en.utf8",
+                );
+            }
+
+            // =============================================================================
+            // Horizon profile extraction — column-indexed altitudes of the
+            // skyline. The captured panorama already encodes the horizon:
+            // terrain is opaque, sky is transparent, so the skyline IS the
+            // horizon. For each pixel column we find the highest opaque
+            // (terrain) pixel and read its altitude straight from the
+            // equirectangular vertical mapping (row 0 = zenith, row H/2 = the
+            // astronomical horizon).
+            //
+            // Important: this stores altitudes BY IMAGE COLUMN, not by
+            // compass azimuth. Column 0 = south (yaw = ±π), column W/2 =
+            // north. The export step (buildHorizonText) is what converts
+            // column index → Stellarium's compass-azimuth convention.
+            // =============================================================================
+            function computeHorizonProfile() {
+                const preview = document.getElementById("preview");
+                const W = preview.width;
+                const H = preview.height;
+
+                const tmp = document.createElement("canvas");
+                tmp.width = W;
+                tmp.height = H;
+
+                const ctx = tmp.getContext("2d", { willReadFrequently: true });
+                ctx.drawImage(preview, 0, 0);
+
+                const data = ctx.getImageData(0, 0, W, H).data;
+
+                // Sky pixels are fully transparent (alpha=0) since Cesium now
+                // renders with an alpha-enabled framebuffer and a transparent
+                // background. Threshold on alpha rather than RGB so deeply
+                // shadowed terrain isn't misread as sky.
+                function isSky(row, col) {
+                    const i = (row * W + col) * 4;
+                    return data[i + 3] < 128;
+                }
+
+                function columnAltitude(x) {
+                    for (let r = 1; r < H; r++) {
+                        if (isSky(r - 1, x) && !isSky(r, x)) {
+                            const v = 1 - (r + 0.5) / H;
+                            return (v - 0.5) * 180; // altitude in degrees
+                        }
+                    }
+                    return NaN;
+                }
+
+                const profile = new Array(W);
+
+                for (let x = 0; x < W; x++) {
+                    profile[x] = columnAltitude(x);
+                }
+
+                return profile;
+            }
+
+            // Cached profile so toggling the overlay or changing thickness doesn't
+            // force a recompute (which involves a full pixel readback from the WebGL
+            // preview). Filled in once after each capture.
+            let cachedHorizonProfile = null;
+
+            // Iterative Douglas-Peucker. Reduces the per-degree (az, alt) curve to
+            // a sparse set of control points such that no removed point sits further
+            // than `tolerance` degrees from the polyline connecting its neighbours.
+            // Stellarium / Carte du Ciel linearly interpolate between the points we
+            // write, so this is exactly the right model: fewer points = simpler file,
+            // shape preserved to the tolerance.
+            function simplifyHorizonProfile(profile, toleranceDeg) {
+                const W = profile.length;
+                const pts = new Array(360);
+                for (let az = 0; az < 360; az++) {
+                    const x = Math.min(W - 1, Math.floor((az / 360) * W));
+                    const alt = profile[x];
+                    pts[az] = [az, isFinite(alt) ? alt : 0];
+                }
+                const keep = new Uint8Array(pts.length);
+                keep[0] = keep[pts.length - 1] = 1;
+                const stack = [[0, pts.length - 1]];
+                while (stack.length) {
+                    const [i, j] = stack.pop();
+                    const x1 = pts[i][0],
+                        y1 = pts[i][1];
+                    const x2 = pts[j][0],
+                        y2 = pts[j][1];
+                    const dx = x2 - x1,
+                        dy = y2 - y1;
+                    const len = Math.hypot(dx, dy);
+                    let maxD = 0,
+                        maxK = -1;
+                    for (let k = i + 1; k < j; k++) {
+                        const x = pts[k][0],
+                            y = pts[k][1];
+                        const d =
+                            len === 0
+                                ? Math.hypot(x - x1, y - y1)
+                                : Math.abs(
+                                      dx * (y1 - y) - (x1 - x) * dy,
+                                  ) / len;
+                        if (d > maxD) {
+                            maxD = d;
+                            maxK = k;
+                        }
+                    }
+                    if (maxD > toleranceDeg && maxK > -1) {
+                        keep[maxK] = 1;
+                        stack.push([i, maxK]);
+                        stack.push([maxK, j]);
+                    }
+                }
+                const out = [];
+                for (let i = 0; i < pts.length; i++)
+                    if (keep[i]) out.push(pts[i]);
+                return out;
+            }
+
+            // Expand a simplified [[az, alt], ...] list back to a per-pixel altitude
+            // array of width W, so the existing column-by-column overlay code can draw
+            // the simplified curve without further changes.
+            function expandSimplifiedProfile(simp, W) {
+                const out = new Array(W);
+                let seg = 0;
+                for (let x = 0; x < W; x++) {
+                    const az = (x / W) * 360;
+                    while (
+                        seg < simp.length - 1 &&
+                        simp[seg + 1][0] <= az
+                    )
+                        seg++;
+                    const a = simp[seg];
+                    const b =
+                        seg < simp.length - 1 ? simp[seg + 1] : simp[seg];
+                    if (a === b || a[0] === b[0]) {
+                        out[x] = a[1];
+                    } else {
+                        const t = (az - a[0]) / (b[0] - a[0]);
+                        out[x] = a[1] + (b[1] - a[1]) * t;
+                    }
+                }
+                return out;
+            }
+
+            function setSimplifyPointCount(text) {
+                for (const id of [
+                    "simplifyPointCount",
+                    "simplifyPointCount360",
+                ]) {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text;
+                }
+            }
+
+            function getActiveHorizonProfile() {
+                if (!cachedHorizonProfile) return null;
+                if (!document.getElementById("simplifyHorizon").checked) {
+                    setSimplifyPointCount("");
+                    return cachedHorizonProfile;
+                }
+                const tol = Math.max(
+                    0.01,
+                    parseFloat(
+                        document.getElementById("horizonTolerance").value,
+                    ) || 0.5,
+                );
+                const simp = simplifyHorizonProfile(
+                    cachedHorizonProfile,
+                    tol,
+                );
+                setSimplifyPointCount(` (${simp.length} points)`);
+                return expandSimplifiedProfile(
+                    simp,
+                    cachedHorizonProfile.length,
+                );
+            }
+
+            // Overlay the extracted skyline on top of the preview canvas. The line is
+            // drawn on a separate 2D canvas stacked over the WebGL preview, so it stays
+            // out of the downloaded PNG.
+            //
+            // Each column's altitude is plotted as a vertical bar of the configured
+            // thickness — never line-segments between adjacent samples. Connecting
+            // noisy adjacent samples with strokes fills a vertical strip per column,
+            // and stacked across all columns those strips merge into a thick band
+            // rather than a thin line.
+            function drawHorizonOverlay() {
+                const preview = document.getElementById("preview");
+                const overlay = document.getElementById("previewHorizon");
+                const W = preview.width;
+                const H = preview.height;
+                overlay.width = W;
+                overlay.height = H;
+                const ctx = overlay.getContext("2d");
+                ctx.clearRect(0, 0, W, H);
+
+                const ratio = H / Math.max(1, overlay.clientHeight || H);
+                const altToY = (alt) => (0.5 - alt / 180) * H;
+
+                // ---- Crop bounds: dashed teal guide lines for maptex_top /
+                // maptex_bottom. Drawn first so the horizon line and the rest of
+                // the overlay paint on top. Each line is its own beginPath +
+                // stroke so the dash phase doesn't carry between them (Firefox
+                // keeps the dash pattern running across moveTo, which leaves
+                // the second line starting mid-gap and visually broken).
+                const cropSky = document.getElementById("cropSky").checked;
+                const cropNadir =
+                    document.getElementById("cropNadir").checked;
+                const drawCropLine = (altDeg, labelText, labelAbove) => {
+                    const y = altToY(altDeg) + 0.5;
+                    ctx.save();
+                    ctx.strokeStyle = "rgba(80, 220, 220, 0.85)";
+                    ctx.lineWidth = Math.max(1, 2 * ratio);
+                    ctx.setLineDash([8 * ratio, 6 * ratio]);
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(W, y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = "rgba(80, 220, 220, 0.95)";
+                    ctx.font = `bold ${Math.max(14, Math.round(W / 90))}px sans-serif`;
+                    ctx.textBaseline = labelAbove ? "bottom" : "top";
+                    ctx.textAlign = "left";
+                    ctx.fillText(
+                        labelText,
+                        W * 0.01,
+                        labelAbove ? y - 4 * ratio : y + 4 * ratio,
+                    );
+                    ctx.restore();
+                };
+                if (cropSky) {
+                    const alt =
+                        parseFloat(
+                            document.getElementById("cropSkyAlt").value,
+                        ) || 0;
+                    drawCropLine(alt, `crop sky  maptex_top = ${alt}°`, true);
+                }
+                if (cropNadir) {
+                    const alt =
+                        parseFloat(
+                            document.getElementById("cropNadirAlt").value,
+                        ) || 0;
+                    drawCropLine(
+                        alt,
+                        `crop nadir  maptex_bottom = ${alt}°`,
+                        false,
+                    );
+                }
+
+                if (!document.getElementById("showHorizon").checked) return;
+                if (!cachedHorizonProfile) {
+                    cachedHorizonProfile = computeHorizonProfile();
+                }
+                const profile = getActiveHorizonProfile();
+                const bias =
+                    parseFloat(
+                        document.getElementById("horizonBias").value,
+                    ) || 0;
+
+                // Thickness input is in DISPLAY pixels; convert to source pixels using
+                // the canvas's internal-vs-CSS height ratio so the line looks the same
+                // thickness regardless of how the preview is scaled in the page.
+                const thicknessDisp = Math.max(
+                    1,
+                    parseInt(
+                        document.getElementById("horizonThickness").value,
+                        10,
+                    ) || 1,
+                );
+                const t = Math.max(1, Math.round(thicknessDisp * ratio));
+                const half = Math.floor(t / 2);
+
+                // Inverse of columnAltitude's vertical mapping:
+                //   alt = (1 - (r + 0.5)/H - 0.5) * 180  →  r = (0.5 - alt/180)*H - 0.5
+                ctx.fillStyle = "rgba(255, 200, 50, 0.95)";
+                for (let x = 0; x < W; x++) {
+                    const alt = profile[x];
+                    if (!isFinite(alt)) continue;
+                    const y = Math.round(altToY(alt + bias) - 0.5);
+                    ctx.fillRect(x, y - half, 1, t);
+                }
+            }
+
+            function clearHorizonOverlay() {
+                const overlay = document.getElementById("previewHorizon");
+                overlay
+                    .getContext("2d")
+                    .clearRect(0, 0, overlay.width, overlay.height);
+            }
+
+            // =============================================================================
+            // Azimuth / altitude grid drawn BEHIND the preview canvas. The preview's sky
+            // pixels are transparent (Cesium renders with backgroundColor = TRANSPARENT),
+            // so this grid only shows through the sky portion — terrain stays opaque on
+            // top. Same mapping the stitcher and overlay use:
+            //   x = ((az + 180) mod 360) / 360 * W     (az: N=0, increasing clockwise)
+            //   y = (0.5 - alt/180) * H                (alt: zenith=+90 top, nadir=-90 bot)
+            // =============================================================================
+            function drawPreviewGrid() {
+                const grid = document.getElementById("previewGrid");
+                const preview = document.getElementById("preview");
+                grid.width = preview.width;
+                grid.height = preview.height;
+                const W = grid.width;
+                const H = grid.height;
+                const ctx = grid.getContext("2d");
+                ctx.clearRect(0, 0, W, H);
+
+                if (!document.getElementById("showGrid").checked) return;
+
+                // Sky-to-ground vertical gradient as the backdrop.
+                const bg = ctx.createLinearGradient(0, 0, 0, H);
+                bg.addColorStop(0, "#0a1226"); // zenith
+                bg.addColorStop(0.5, "#3d5a78"); // horizon (top half = sky)
+                bg.addColorStop(0.5, "#3a2818"); // horizon (bottom half = ground)
+                bg.addColorStop(1, "#0e0805"); // nadir
+                ctx.fillStyle = bg;
+                ctx.fillRect(0, 0, W, H);
+
+                const azToX = (az) => (((az + 180) % 360) / 360) * W;
+                const altToY = (alt) => (0.5 - alt / 180) * H;
+
+                const px = Math.max(1, W / 1024);
+                const fontPx = Math.max(14, Math.round(W / 90));
+
+                // ---- Minor grid (every 10° az, every 5° alt) ----
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.07)";
+                ctx.lineWidth = px;
+                ctx.beginPath();
+                for (let az = 0; az < 360; az += 10) {
+                    if (az % 30 === 0) continue;
+                    const x = Math.round(azToX(az)) + 0.5;
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, H);
+                }
+                for (let alt = -85; alt <= 85; alt += 5) {
+                    if (alt % 15 === 0) continue;
+                    const y = Math.round(altToY(alt)) + 0.5;
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(W, y);
+                }
+                ctx.stroke();
+
+                // ---- Mid grid (every 30° az, every 15° alt) ----
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.18)";
+                ctx.lineWidth = px;
+                ctx.beginPath();
+                for (let az = 0; az < 360; az += 30) {
+                    if (az % 90 === 0) continue;
+                    const x = Math.round(azToX(az)) + 0.5;
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, H);
+                }
+                for (let alt = -75; alt <= 75; alt += 15) {
+                    if (alt === 0 || alt % 30 === 0) continue;
+                    const y = Math.round(altToY(alt)) + 0.5;
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(W, y);
+                }
+                ctx.stroke();
+
+                // ---- Major grid (cardinal az, 30° alt steps) ----
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+                ctx.lineWidth = px * 1.5;
+                ctx.beginPath();
+                for (let az = 0; az < 360; az += 90) {
+                    const x = Math.round(azToX(az)) + 0.5;
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, H);
+                }
+                for (let alt = -60; alt <= 60; alt += 30) {
+                    if (alt === 0) continue;
+                    const y = Math.round(altToY(alt)) + 0.5;
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(W, y);
+                }
+                ctx.stroke();
+
+                // ---- Horizon line (alt = 0) — most prominent ----
+                ctx.strokeStyle = "rgba(255, 220, 120, 0.55)";
+                ctx.lineWidth = px * 2;
+                ctx.beginPath();
+                const yH = Math.round(altToY(0)) + 0.5;
+                ctx.moveTo(0, yH);
+                ctx.lineTo(W, yH);
+                ctx.stroke();
+
+                // ---- Labels ----
+                ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+                ctx.textBaseline = "middle";
+
+                // Cardinal / intercardinal labels, big, top + bottom of frame.
+                const cardinals = [
+                    { az: 0, label: "N" },
+                    { az: 45, label: "NE" },
+                    { az: 90, label: "E" },
+                    { az: 135, label: "SE" },
+                    { az: 180, label: "S" },
+                    { az: 225, label: "SW" },
+                    { az: 270, label: "W" },
+                    { az: 315, label: "NW" },
+                ];
+                ctx.textAlign = "center";
+                ctx.font = `bold ${Math.round(fontPx * 1.6)}px sans-serif`;
+                for (const { az, label } of cardinals) {
+                    const x = azToX(az);
+                    ctx.fillText(label, x, fontPx * 1.2);
+                    ctx.fillText(label, x, H - fontPx * 1.2);
+                }
+
+                // Az degree labels every 30°.
+                ctx.font = `${fontPx}px sans-serif`;
+                for (let az = 0; az < 360; az += 30) {
+                    const x = azToX(az);
+                    ctx.fillText(`${az}°`, x, fontPx * 2.8);
+                    ctx.fillText(`${az}°`, x, H - fontPx * 2.8);
+                }
+
+                // Altitude labels along left & right edges, every 15°.
+                ctx.font = `${fontPx}px sans-serif`;
+                for (let alt = -75; alt <= 75; alt += 15) {
+                    if (alt === 0) continue;
+                    const y = altToY(alt);
+                    const label = `${alt > 0 ? "+" : ""}${alt}°`;
+                    ctx.textAlign = "left";
+                    ctx.fillText(label, fontPx * 0.4, y);
+                    ctx.textAlign = "right";
+                    ctx.fillText(label, W - fontPx * 0.4, y);
+                }
+                // Horizon emphasised.
+                ctx.font = `bold ${fontPx}px sans-serif`;
+                ctx.fillStyle = "rgba(255, 220, 120, 0.95)";
+                ctx.textAlign = "left";
+                ctx.fillText("0° horizon", fontPx * 0.4, altToY(0));
+                ctx.textAlign = "right";
+                ctx.fillText("0° horizon", W - fontPx * 0.4, altToY(0));
+                // Zenith / nadir markers.
+                ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+                ctx.textAlign = "left";
+                ctx.fillText("+90° zenith", fontPx * 0.4, fontPx * 0.8);
+                ctx.fillText("−90° nadir", fontPx * 0.4, H - fontPx * 0.8);
+            }
+
+            function downloadHorizon() {
+                const params = getSiteParams();
+                const profile =
+                    cachedHorizonProfile ||
+                    (cachedHorizonProfile = computeHorizonProfile());
+                const simplify =
+                    document.getElementById("simplifyHorizon").checked;
+                const tol = Math.max(
+                    0.01,
+                    parseFloat(
+                        document.getElementById("horizonTolerance").value,
+                    ) || 0.5,
+                );
+                const body = buildHorizonText(params, profile, simplify, tol);
+                saveBlob(
+                    new Blob([body], { type: "text/plain" }),
+                    "horizon.txt",
+                );
+                log("Horizon profile exported (horizon.txt).");
+            }
+
+            // =============================================================================
+            // ZIP package — the single-click "give me a Stellarium landscape"
+            // export. Stellarium can install a ZIP directly from its Landscape
+            // dialog: drag-and-drop or use the Add button. We put everything in
+            // a folder named after the site so Stellarium picks that as the ID.
+            // =============================================================================
+            async function downloadZip() {
+                if (typeof JSZip === "undefined") {
+                    log(
+                        "ERROR: JSZip library failed to load — check internet connection.",
+                    );
+                    return;
+                }
+                const params = getSiteParams();
+                log(`Building landscape package "${params.slug}"…`);
+                const zip = new JSZip();
+                const folder = zip.folder(params.slug);
+                const pngBlob = await getPngBlob();
+                folder.file("pano.png", pngBlob);
+                folder.file("landscape.ini", buildLandscapeIni(params));
+                const profile =
+                    cachedHorizonProfile ||
+                    (cachedHorizonProfile = computeHorizonProfile());
+                const simplify =
+                    document.getElementById("simplifyHorizon").checked;
+                const tol = Math.max(
+                    0.01,
+                    parseFloat(
+                        document.getElementById("horizonTolerance").value,
+                    ) || 0.5,
+                );
+                folder.file(
+                    "horizon.txt",
+                    buildHorizonText(params, profile, simplify, tol),
+                );
+                folder.file(
+                    "description.en.utf8",
+                    buildDescription(params),
+                );
+                folder.file("LICENSE.txt", buildLicense(params));
+                const zipBlob = await zip.generateAsync({
+                    type: "blob",
+                    compression: "DEFLATE",
+                    compressionOptions: { level: 6 },
+                });
+                saveBlob(zipBlob, `${params.slug}.zip`);
+                log(
+                    `Saved ${params.slug}.zip (${(zipBlob.size / 1024 / 1024).toFixed(2)} MB) — drop into Stellarium's Landscape dialog.`,
+                );
+            }
+
+            //
+            // Stands the eye at the centre of the captured equirectangular panorama and
+            // lets you look around. It's the exact inverse of the stitcher: a full-screen
+            // quad whose fragment shader casts one ray per pixel from the look direction,
+            // converts that ray to the SAME equirectangular convention used on capture
+            // (yaw measured from north +y toward east +x; t=0 at the zenith), and samples
+            // the pano. Transparent sky in the pano is filled with a simple gradient so the
+            // upper hemisphere doesn't read as black. No external libraries — a small
+            // hand-written WebGL pass, reusing the #preview canvas directly as the texture.
+            // =============================================================================
+            const PANO_VIEW_VS = `
+  attribute vec2 a_pos;
+  varying vec2 v_ndc;
+  void main() { v_ndc = a_pos; gl_Position = vec4(a_pos, 0.0, 1.0); }
+`;
+
+            const PANO_VIEW_FS = `
+  precision highp float;
+  varying vec2 v_ndc;
+  uniform sampler2D u_pano;
+  uniform sampler2D u_horizon;   // 1-D profile: RG = packed 16-bit altitude per azimuth
+  uniform float u_horizonN;      // number of samples (degrees) in the profile
+  uniform float u_showHorizon;   // 0 or 1
+  uniform float u_showGrid;      // 0 or 1
+  uniform float u_radPerPx;      // vertical radians per device pixel (for line thickness)
+  uniform float u_lineHalfPx;    // half line width, device px
+  uniform vec3  u_fwd;
+  uniform vec3  u_right;
+  uniform vec3  u_up;
+  uniform float u_tanH;   // tan(hFov/2)
+  uniform float u_tanV;   // tan(vFov/2)
+  const float PI = 3.14159265358979;
+  const float DEG = 57.29577951308232;
+
+  // Decode a packed RG 16-bit value back into an altitude (radians, pitch).
+  float decodeAlt(vec4 c) {
+    float norm = (c.r * 255.0 * 256.0 + c.g * 255.0) / 65535.0;
+    return (norm - 0.5) * PI;
+  }
+
+  // Horizon altitude (radians) at a given azimuth fraction [0,1), linearly
+  // interpolated between the two nearest 1° samples (wrapping at the seam).
+  float horizonAlt(float azFrac) {
+    float fidx = azFrac * u_horizonN;
+    float i0 = floor(fidx);
+    float frac = fidx - i0;
+    float x0 = (mod(i0,        u_horizonN) + 0.5) / u_horizonN;
+    float x1 = (mod(i0 + 1.0,  u_horizonN) + 0.5) / u_horizonN;
+    float a0 = decodeAlt(texture2D(u_horizon, vec2(x0, 0.5)));
+    float a1 = decodeAlt(texture2D(u_horizon, vec2(x1, 0.5)));
+    return mix(a0, a1, frac);
+  }
+
+  void main() {
+    // View ray for this pixel, in world ENU (x=east, y=north, z=up).
+    vec3 dir = normalize(u_fwd + v_ndc.x * u_tanH * u_right + v_ndc.y * u_tanV * u_up);
+
+    // Same mapping the stitcher used (matched exactly so what you captured is
+    // what you see): yaw 0 at north, increasing toward east; t=0 at zenith.
+    float yaw   = atan(dir.x, dir.y);
+    float pitch = asin(clamp(dir.z, -1.0, 1.0));
+    float s = yaw / (2.0 * PI) + 0.5;
+    float t = 0.5 - pitch / PI;
+
+    vec4 pano = texture2D(u_pano, vec2(s, t));
+
+    // Procedural sky behind the transparent (sky) parts of the landscape.
+    float up = clamp(pitch / (PI * 0.5), 0.0, 1.0);
+    vec3 horizon = vec3(0.80, 0.87, 0.93);
+    vec3 zenith  = vec3(0.26, 0.50, 0.78);
+    vec3 sky = mix(horizon, zenith, up);
+
+    // Azimuth / altitude grid baked into the sky. Lines of constant yaw
+    // (meridians) get a cos(pitch) correction so their on-screen thickness
+    // stays roughly constant away from the equator. Altitude lines
+    // (parallels) don't need the correction. Grid never overpaints the
+    // panorama itself; we mix into the sky color and the existing pano.a
+    // blend keeps terrain pixels untouched.
+    if (u_showGrid > 0.5) {
+      float yawDeg   = yaw * DEG;
+      float pitchDeg = pitch * DEG;
+      // Grid line thickness is independent of u_lineHalfPx (which drives
+      // the user-controllable horizon overlay): a hairline always reads
+      // best as a chart background regardless of the horizon setting.
+      float lineHalfRad = u_radPerPx * 0.7;
+      float aa = u_radPerPx;
+      float cp = max(0.05, abs(cos(pitch)));
+
+      // Azimuth lines (meridians). Distance to nearest 30°, and to nearest 90°.
+      float az30 = abs(mod(yawDeg + 360.0 + 15.0, 30.0) - 15.0) / DEG * cp;
+      float az90 = abs(mod(yawDeg + 360.0 + 45.0, 90.0) - 45.0) / DEG * cp;
+      float az10 = abs(mod(yawDeg + 360.0 + 5.0, 10.0) - 5.0) / DEG * cp;
+
+      // Altitude lines (parallels).
+      float alt15 = abs(mod(pitchDeg + 90.0 + 7.5, 15.0) - 7.5) / DEG;
+      float alt30 = abs(mod(pitchDeg + 90.0 + 15.0, 30.0) - 15.0) / DEG;
+      float alt5  = abs(mod(pitchDeg + 90.0 + 2.5, 5.0) - 2.5) / DEG;
+
+      float minorAz = 1.0 - smoothstep(lineHalfRad, lineHalfRad + aa, az10);
+      float minorAlt = 1.0 - smoothstep(lineHalfRad, lineHalfRad + aa, alt5);
+      float midAz = 1.0 - smoothstep(lineHalfRad, lineHalfRad + aa, az30);
+      float midAlt = 1.0 - smoothstep(lineHalfRad, lineHalfRad + aa, alt15);
+      float majAz = 1.0 - smoothstep(lineHalfRad * 1.5, lineHalfRad * 1.5 + aa, az90);
+      float majAlt = 1.0 - smoothstep(lineHalfRad * 1.5, lineHalfRad * 1.5 + aa, alt30);
+
+      // Horizon (alt = 0) — drawn bold in amber, like the preview's emphasis.
+      float horiz = 1.0 - smoothstep(lineHalfRad * 1.5, lineHalfRad * 1.5 + aa, abs(pitch));
+
+      vec3 gridColor = vec3(0.95, 0.97, 1.0);
+      sky = mix(sky, gridColor, max(minorAz, minorAlt) * 0.18);
+      sky = mix(sky, gridColor, max(midAz, midAlt) * 0.45);
+      sky = mix(sky, gridColor, max(majAz, majAlt) * 0.75);
+      sky = mix(sky, vec3(1.0, 0.86, 0.35), horiz * 0.8);
+    }
+
+    vec3 col = mix(sky, pano.rgb, pano.a);
+
+    // Overlay the extracted horizon path. azFrac runs 0=N, .25=E, .5=S, .75=W,
+    // matching how the profile is indexed; the line traces the skyline.
+    if (u_showHorizon > 0.5) {
+      float azFrac = fract(yaw / (2.0 * PI));
+      float hAlt = horizonAlt(azFrac);
+      float d = abs(pitch - hAlt);
+      float halfW = u_lineHalfPx * u_radPerPx;
+      float aa = u_radPerPx;
+      float line = 1.0 - smoothstep(halfW, halfW + aa, d);
+      vec3 lineColor = vec3(1.0, 0.78, 0.18);   // amber
+      col = mix(col, lineColor, line);
+    }
+
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+            function makePanoViewer() {
+                const root = document.getElementById("viewer360");
+                const canvas = root.querySelector("canvas");
+                const closeBtn = root.querySelector(".close");
+                const gl = canvas.getContext("webgl", { antialias: true });
+                if (!gl) throw new Error("WebGL unavailable for 360° viewer");
+
+                const compile = (type, src) => {
+                    const s = gl.createShader(type);
+                    gl.shaderSource(s, src);
+                    gl.compileShader(s);
+                    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+                        throw new Error(gl.getShaderInfoLog(s));
+                    return s;
+                };
+                const prog = gl.createProgram();
+                gl.attachShader(prog, compile(gl.VERTEX_SHADER, PANO_VIEW_VS));
+                gl.attachShader(
+                    prog,
+                    compile(gl.FRAGMENT_SHADER, PANO_VIEW_FS),
+                );
+                gl.linkProgram(prog);
+                if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+                    throw new Error(gl.getProgramInfoLog(prog));
+                gl.useProgram(prog);
+
+                const buf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+                gl.bufferData(
+                    gl.ARRAY_BUFFER,
+                    new Float32Array([
+                        -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
+                    ]),
+                    gl.STATIC_DRAW,
+                );
+                const aPos = gl.getAttribLocation(prog, "a_pos");
+                gl.enableVertexAttribArray(aPos);
+                gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+                const tex = gl.createTexture();
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, tex);
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_MIN_FILTER,
+                    gl.LINEAR,
+                );
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_MAG_FILTER,
+                    gl.LINEAR,
+                );
+                gl.uniform1i(gl.getUniformLocation(prog, "u_pano"), 0);
+
+                // Horizon profile texture (N x 1, packed RG 16-bit per azimuth).
+                // The shader does its own linear interpolation between the two
+                // nearest samples, so NEAREST filtering is required — LINEAR would
+                // blend the R / G bytes across samples and corrupt the decoded
+                // altitude. REPEAT wraps cleanly through the 0/360 seam.
+                const horizonTex = gl.createTexture();
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, horizonTex);
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_WRAP_S,
+                    gl.REPEAT,
+                );
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_WRAP_T,
+                    gl.CLAMP_TO_EDGE,
+                );
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_MIN_FILTER,
+                    gl.NEAREST,
+                );
+                gl.texParameteri(
+                    gl.TEXTURE_2D,
+                    gl.TEXTURE_MAG_FILTER,
+                    gl.NEAREST,
+                );
+                gl.uniform1i(gl.getUniformLocation(prog, "u_horizon"), 1);
+
+                const uFwd = gl.getUniformLocation(prog, "u_fwd");
+                const uRight = gl.getUniformLocation(prog, "u_right");
+                const uUp = gl.getUniformLocation(prog, "u_up");
+                const uTanH = gl.getUniformLocation(prog, "u_tanH");
+                const uTanV = gl.getUniformLocation(prog, "u_tanV");
+                const uHorizonN = gl.getUniformLocation(prog, "u_horizonN");
+                const uShowHorizon = gl.getUniformLocation(
+                    prog,
+                    "u_showHorizon",
+                );
+                const uRadPerPx = gl.getUniformLocation(prog, "u_radPerPx");
+                const uLineHalfPx = gl.getUniformLocation(
+                    prog,
+                    "u_lineHalfPx",
+                );
+                const uShowGrid = gl.getUniformLocation(prog, "u_showGrid");
+                let horizonN = 0;
+
+                // Look state.
+                let yaw = 0,
+                    pitch = 0,
+                    hFovDeg = 75;
+                const isPOT = (n) => (n & (n - 1)) === 0;
+
+                function uploadTexture(source) {
+                    // Guard against panoramas wider than the GPU's max texture size.
+                    const maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+                    let src = source;
+                    if (source.width > maxTex || source.height > maxTex) {
+                        const scale =
+                            maxTex / Math.max(source.width, source.height);
+                        const tmp = document.createElement("canvas");
+                        tmp.width = Math.max(
+                            1,
+                            Math.floor(source.width * scale),
+                        );
+                        tmp.height = Math.max(
+                            1,
+                            Math.floor(source.height * scale),
+                        );
+                        tmp.getContext("2d").drawImage(
+                            source,
+                            0,
+                            0,
+                            tmp.width,
+                            tmp.height,
+                        );
+                        src = tmp;
+                    }
+                    const wrap =
+                        isPOT(src.width) && isPOT(src.height)
+                            ? gl.REPEAT
+                            : gl.CLAMP_TO_EDGE;
+                    // Be explicit about the texture unit — the horizon profile
+                    // lives on TEXTURE1, and whichever unit was last active is
+                    // implicit state we don't want to depend on.
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, tex);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap); // seamless 360° wrap when POT
+                    gl.texParameteri(
+                        gl.TEXTURE_2D,
+                        gl.TEXTURE_WRAP_T,
+                        gl.CLAMP_TO_EDGE,
+                    );
+                    gl.texImage2D(
+                        gl.TEXTURE_2D,
+                        0,
+                        gl.RGBA,
+                        gl.RGBA,
+                        gl.UNSIGNED_BYTE,
+                        src,
+                    );
+                }
+
+                // Pack the captured skyline (per-equirect-column altitudes in
+                // DEGREES) into an N x 1 RGBA texture the shader can decode.
+                //
+                // Two mappings have to line up:
+                //   (a) profileDeg[x] is indexed by equirect column x in [0, W),
+                //       where column 0 corresponds to yaw = -PI (south) and
+                //       column W/2 to yaw = 0 (north) — this matches how the
+                //       stitcher wrote the panorama and how drawHorizonOverlay
+                //       plots it.
+                //   (b) The shader indexes the horizon texture by
+                //       azFrac = fract(yaw / 2PI), where azFrac = 0 is north
+                //       (matches u_pano sampling: s = yaw/2PI + 0.5).
+                // To bridge (a)→(b) we rotate by half a period on upload so
+                // texture index 0 = north, W/4 = east, W/2 = south, 3W/4 = west.
+                //
+                // Each sample is encoded as norm = alt/PI + 0.5 (so [-PI/2, PI/2]
+                // → [0, 1]) split into a big-endian 16-bit value across the R
+                // and G channels, exactly what decodeAlt() in the shader expects.
+                function uploadHorizon(profileDeg) {
+                    const W = profileDeg.length;
+                    const bytes = new Uint8Array(W * 4);
+                    const half = W >> 1;
+                    for (let i = 0; i < W; i++) {
+                        const src = profileDeg[(i + half) % W];
+                        const altRad = isFinite(src)
+                            ? (src * Math.PI) / 180
+                            : 0;
+                        const norm = Math.max(
+                            0,
+                            Math.min(1, altRad / Math.PI + 0.5),
+                        );
+                        const v = Math.round(norm * 65535);
+                        const r = (v >> 8) & 0xff;
+                        const g = v & 0xff;
+                        const o = i * 4;
+                        bytes[o] = r;
+                        bytes[o + 1] = g;
+                        bytes[o + 2] = 0;
+                        bytes[o + 3] = 255;
+                    }
+                    gl.activeTexture(gl.TEXTURE1);
+                    gl.bindTexture(gl.TEXTURE_2D, horizonTex);
+                    gl.texImage2D(
+                        gl.TEXTURE_2D,
+                        0,
+                        gl.RGBA,
+                        W,
+                        1,
+                        0,
+                        gl.RGBA,
+                        gl.UNSIGNED_BYTE,
+                        bytes,
+                    );
+                    horizonN = W;
+                }
+
+                function resize() {
+                    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                    const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+                    const h = Math.max(
+                        1,
+                        Math.round(canvas.clientHeight * dpr),
+                    );
+                    if (canvas.width !== w || canvas.height !== h) {
+                        canvas.width = w;
+                        canvas.height = h;
+                    }
+                }
+
+                function render() {
+                    resize();
+                    gl.viewport(0, 0, canvas.width, canvas.height);
+
+                    const cy = Math.cos(yaw),
+                        sy = Math.sin(yaw);
+                    const cp = Math.cos(pitch),
+                        sp = Math.sin(pitch);
+                    // Forward / right / up in world ENU (same basis as the stitcher).
+                    const F = [sy * cp, cy * cp, sp];
+                    const R = [cy, -sy, 0];
+                    const U = [
+                        R[1] * F[2] - R[2] * F[1],
+                        R[2] * F[0] - R[0] * F[2],
+                        R[0] * F[1] - R[1] * F[0],
+                    ];
+
+                    const aspect = canvas.width / canvas.height;
+                    const tanH = Math.tan(Cesium.Math.toRadians(hFovDeg) / 2);
+                    const tanV = tanH / aspect;
+
+                    gl.uniform3fv(uFwd, F);
+                    gl.uniform3fv(uRight, R);
+                    gl.uniform3fv(uUp, U);
+                    gl.uniform1f(uTanH, tanH);
+                    gl.uniform1f(uTanV, tanV);
+
+                    // Horizon overlay (driven by the page-level checkbox /
+                    // thickness input; same source-of-truth as the preview).
+                    const showHorizon =
+                        horizonN > 0 &&
+                        document.getElementById("showHorizon").checked;
+                    gl.uniform1f(uHorizonN, horizonN);
+                    gl.uniform1f(uShowHorizon, showHorizon ? 1 : 0);
+                    gl.uniform1f(
+                        uShowGrid,
+                        document.getElementById("showGrid").checked ? 1 : 0,
+                    );
+                    // Vertical radians per device pixel — the shader compares it
+                    // against abs(pitch - horizonAlt), which is a vertical
+                    // distance. Using a horizontal rad/px (radPerPixel()) would
+                    // mis-scale the line at non-square aspects.
+                    const vFov = 2 * Math.atan(tanV);
+                    gl.uniform1f(uRadPerPx, vFov / Math.max(1, canvas.height));
+                    const thicknessDisp = Math.max(
+                        1,
+                        parseInt(
+                            document.getElementById("horizonThickness").value,
+                            10,
+                        ) || 1,
+                    );
+                    // Thickness input is in CSS pixels; render-buffer height is
+                    // device pixels. Scale so the line looks the same thickness
+                    // regardless of devicePixelRatio.
+                    const dprScale =
+                        canvas.height / Math.max(1, canvas.clientHeight);
+                    gl.uniform1f(
+                        uLineHalfPx,
+                        Math.max(0.5, (thicknessDisp * dprScale) / 2),
+                    );
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+                    const azDeg =
+                        ((Cesium.Math.toDegrees(yaw) % 360) + 360) % 360;
+                    const altDeg = Cesium.Math.toDegrees(pitch);
+                    const cardinals = [
+                        "N",
+                        "NE",
+                        "E",
+                        "SE",
+                        "S",
+                        "SW",
+                        "W",
+                        "NW",
+                    ];
+                    const card = cardinals[Math.round(azDeg / 45) % 8];
+                    document.getElementById("lookReadout").textContent =
+                        `Az ${azDeg.toFixed(1).padStart(5, "0")}° ${card.padEnd(2, " ")}  ` +
+                        `Alt ${altDeg >= 0 ? "+" : ""}${altDeg.toFixed(1)}°`;
+                }
+
+                // ---- Interaction: drag to look, wheel / pinch to zoom ----
+                const pointers = new Map();
+                let pinchDist = 0;
+
+                const radPerPixel = () =>
+                    Cesium.Math.toRadians(hFovDeg) / canvas.clientWidth;
+
+                canvas.addEventListener("pointerdown", (e) => {
+                    canvas.setPointerCapture(e.pointerId);
+                    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                    if (pointers.size === 2) {
+                        const [a, b] = [...pointers.values()];
+                        pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+                    }
+                    root.classList.add("dragging");
+                });
+
+                canvas.addEventListener("pointermove", (e) => {
+                    const p = pointers.get(e.pointerId);
+                    if (!p) return;
+
+                    if (pointers.size >= 2) {
+                        // Pinch zoom.
+                        p.x = e.clientX;
+                        p.y = e.clientY;
+                        const [a, b] = [...pointers.values()];
+                        const d = Math.hypot(a.x - b.x, a.y - b.y);
+                        if (pinchDist > 0) {
+                            hFovDeg = Math.min(
+                                100,
+                                Math.max(20, hFovDeg * (pinchDist / d)),
+                            );
+                        }
+                        pinchDist = d;
+                        render();
+                        return;
+                    }
+
+                    // Single-pointer grab-and-look.
+                    const dx = e.clientX - p.x,
+                        dy = e.clientY - p.y;
+                    p.x = e.clientX;
+                    p.y = e.clientY;
+                    const k = radPerPixel();
+                    yaw -= dx * k; // grab style: drag right → world follows
+                    pitch += dy * k;
+                    const lim = Cesium.Math.toRadians(89);
+                    pitch = Math.min(lim, Math.max(-lim, pitch));
+                    render();
+                });
+
+                const endPointer = (e) => {
+                    pointers.delete(e.pointerId);
+                    if (pointers.size < 2) pinchDist = 0;
+                    if (pointers.size === 0) root.classList.remove("dragging");
+                };
+                canvas.addEventListener("pointerup", endPointer);
+                canvas.addEventListener("pointercancel", endPointer);
+
+                canvas.addEventListener(
+                    "wheel",
+                    (e) => {
+                        e.preventDefault();
+                        hFovDeg = Math.min(
+                            100,
+                            Math.max(20, hFovDeg + e.deltaY * 0.03),
+                        );
+                        render();
+                    },
+                    { passive: false },
+                );
+
+                function close() {
+                    root.classList.remove("open");
+                    window.removeEventListener("resize", render);
+                    window.removeEventListener("keydown", onKey);
+                }
+                function onKey(e) {
+                    if (e.key === "Escape") close();
+                }
+                closeBtn.addEventListener("click", close);
+
+                function open(source, profileDeg) {
+                    root.classList.add("open");
+                    yaw = 0;
+                    pitch = 0;
+                    hFovDeg = 75; // reset to look north at the horizon
+                    uploadTexture(source);
+                    if (profileDeg && profileDeg.length > 0) {
+                        uploadHorizon(profileDeg);
+                    } else {
+                        horizonN = 0;
+                    }
+                    window.addEventListener("resize", render);
+                    window.addEventListener("keydown", onKey);
+                    // Defer one frame so the canvas has its laid-out size before we read it.
+                    requestAnimationFrame(render);
+                }
+
+                function setHorizonProfile(profileDeg) {
+                    if (profileDeg && profileDeg.length > 0) {
+                        uploadHorizon(profileDeg);
+                    } else {
+                        horizonN = 0;
+                    }
+                    if (root.classList.contains("open")) render();
+                }
+
+                function isOpen() {
+                    return root.classList.contains("open");
+                }
+
+                return { open, close, render, setHorizonProfile, isOpen };
+            }
+
+            // Active horizon profile with the user's altitude bias added. The
+            // bias is purely cosmetic / additive — applied here so both the
+            // preview overlay and the 360° viewer see the same lifted curve.
+            function getBiasedActiveHorizon() {
+                const active = getActiveHorizonProfile();
+                if (!active) return null;
+                const bias =
+                    parseFloat(
+                        document.getElementById("horizonBias").value,
+                    ) || 0;
+                if (bias === 0) return active;
+                const out = new Array(active.length);
+                for (let i = 0; i < active.length; i++) {
+                    out[i] = isFinite(active[i]) ? active[i] + bias : NaN;
+                }
+                return out;
+            }
+
+            let panoViewer;
+            function openPanoViewer() {
+                if (!panoViewer) panoViewer = makePanoViewer();
+                // Make sure a profile exists even if the preview overlay was
+                // turned off the whole time (drawHorizonOverlay short-circuits
+                // when #showHorizon is unchecked and never computes one).
+                if (!cachedHorizonProfile) {
+                    cachedHorizonProfile = computeHorizonProfile();
+                }
+                document.getElementById("showHorizon360").checked =
+                    document.getElementById("showHorizon").checked;
+                document.getElementById("showGrid360").checked =
+                    document.getElementById("showGrid").checked;
+                document.getElementById("simplifyHorizon360").checked =
+                    document.getElementById("simplifyHorizon").checked;
+                document.getElementById("horizonTolerance360").value =
+                    document.getElementById("horizonTolerance").value;
+                panoViewer.open(
+                    document.getElementById("preview"),
+                    getBiasedActiveHorizon(),
+                );
+            }
+
+            // Two-way mirror between the in-viewer toggles and their page-level
+            // counterparts: editing one updates the other and refreshes both
+            // the 2D preview overlay and the 360° viewer.
+            function mirrorToggle(srcId, dstId) {
+                const src = document.getElementById(srcId);
+                const dst = document.getElementById(dstId);
+                src.addEventListener("change", () => {
+                    if (dst.checked !== src.checked) {
+                        dst.checked = src.checked;
+                        dst.dispatchEvent(new Event("change"));
+                    }
+                });
+            }
+            function mirrorInput(srcId, dstId) {
+                const src = document.getElementById(srcId);
+                const dst = document.getElementById(dstId);
+                src.addEventListener("input", () => {
+                    if (dst.value !== src.value) {
+                        dst.value = src.value;
+                        dst.dispatchEvent(new Event("input"));
+                    }
+                });
+            }
+            mirrorToggle("showHorizon360", "showHorizon");
+            mirrorToggle("showGrid360", "showGrid");
+            mirrorToggle("showHorizon", "showHorizon360");
+            mirrorToggle("showGrid", "showGrid360");
+            mirrorToggle("simplifyHorizon360", "simplifyHorizon");
+            mirrorToggle("simplifyHorizon", "simplifyHorizon360");
+            mirrorInput("horizonTolerance360", "horizonTolerance");
+            mirrorInput("horizonTolerance", "horizonTolerance360");
+
+            // Push the active (possibly simplified, possibly biased) horizon
+            // curve into the 360° viewer whenever the preview redraws, so the
+            // two views stay in sync as the user toggles "Show horizon",
+            // changes thickness, tweaks the simplification tolerance, or moves
+            // the horizon bias slider.
+            function syncPanoViewerHorizon() {
+                if (!panoViewer || !panoViewer.isOpen()) return;
+                panoViewer.setHorizonProfile(getBiasedActiveHorizon());
+            }
+
+            // Resolution preset → fills outW/outH. "custom" leaves the
+            // existing values untouched so manual edits stick.
+            function applyResolutionPreset() {
+                const v = document.getElementById("resPreset").value;
+                if (v === "custom") return;
+                const w = parseInt(v, 10);
+                if (!isFinite(w) || w <= 0) return;
+                document.getElementById("outW").value = w;
+                document.getElementById("outH").value = w / 2;
+            }
+
+            document.getElementById("run").addEventListener("click", () => {
+                capturePanorama().catch((e) => {
+                    const msg =
+                        (e && (e.message || e.toString())) || "(no message)";
+                    log("ERROR: " + msg);
+                    if (e && e.stack) log(e.stack);
+                    console.error("capturePanorama threw:", e);
+                });
+            });
+            document
+                .getElementById("downloadZip")
+                .addEventListener("click", () => {
+                    downloadZip().catch((e) => {
+                        const msg =
+                            (e && (e.message || e.toString())) ||
+                            "(no message)";
+                        log("ERROR: " + msg);
+                        if (e && e.stack) log(e.stack);
+                        console.error("downloadZip threw:", e);
+                    });
+                });
+            document
+                .getElementById("downloadPng")
+                .addEventListener("click", () => {
+                    downloadPng();
+                });
+            document
+                .getElementById("downloadIni")
+                .addEventListener("click", downloadIni);
+            document
+                .getElementById("downloadHorizon")
+                .addEventListener("click", downloadHorizon);
+            document
+                .getElementById("downloadDesc")
+                .addEventListener("click", downloadDesc);
+            document
+                .getElementById("open360")
+                .addEventListener("click", openPanoViewer);
+            const refreshHorizon = () => {
+                drawHorizonOverlay();
+                syncPanoViewerHorizon();
+            };
+            document
+                .getElementById("showHorizon")
+                .addEventListener("change", refreshHorizon);
+            document
+                .getElementById("horizonThickness")
+                .addEventListener("input", refreshHorizon);
+            document
+                .getElementById("simplifyHorizon")
+                .addEventListener("change", refreshHorizon);
+            document
+                .getElementById("horizonTolerance")
+                .addEventListener("input", refreshHorizon);
+            document
+                .getElementById("horizonBias")
+                .addEventListener("input", refreshHorizon);
+            for (const id of [
+                "cropSky",
+                "cropSkyAlt",
+                "cropNadir",
+                "cropNadirAlt",
+            ]) {
+                document
+                    .getElementById(id)
+                    .addEventListener("input", refreshHorizon);
+                document
+                    .getElementById(id)
+                    .addEventListener("change", refreshHorizon);
+            }
+            // Manual edits to W/H should switch the preset to "custom" so
+            // we don't silently clobber what the user typed.
+            for (const id of ["outW", "outH"]) {
+                document.getElementById(id).addEventListener("input", () => {
+                    document.getElementById("resPreset").value = "custom";
+                });
+            }
+            document
+                .getElementById("resPreset")
+                .addEventListener("change", applyResolutionPreset);
+            document
+                .getElementById("showGrid")
+                .addEventListener("change", () => {
+                    drawPreviewGrid();
+                    if (panoViewer && panoViewer.isOpen()) panoViewer.render();
+                });
+
+            // =============================================================================
+            // Location picker — Leaflet map popup that writes the Lat/Lon inputs.
+            // =============================================================================
+            (function setupMapPicker() {
+                const latInput = document.getElementById("lat");
+                const lonInput = document.getElementById("lon");
+                const modal = document.getElementById("mapPicker");
+                const mapEl = document.getElementById("mapPickerMap");
+                const coordsEl = document.getElementById("mapPickerCoords");
+                const searchInput = document.getElementById("mapPickerSearch");
+
+                let map = null;
+                let marker = null;
+                let selected = null; // {lat, lon}
+
+                function setSelection(lat, lon) {
+                    selected = { lat, lon };
+                    if (!marker) {
+                        marker = L.marker([lat, lon], {
+                            draggable: true,
+                        }).addTo(map);
+                        marker.on("dragend", () => {
+                            const p = marker.getLatLng();
+                            setSelection(p.lat, p.lng);
+                        });
+                    } else {
+                        marker.setLatLng([lat, lon]);
+                    }
+                    coordsEl.textContent =
+                        "Lat " + lat.toFixed(5) + "  Lon " + lon.toFixed(5);
+                }
+
+                function openPicker() {
+                    modal.classList.add("open");
+                    // Leaflet needs the container to be visible before init/resize.
+                    if (!map) {
+                        map = L.map(mapEl).setView([20, 0], 2);
+                        L.tileLayer(
+                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            {
+                                maxZoom: 19,
+                                attribution: "© OpenStreetMap contributors",
+                            }
+                        ).addTo(map);
+                        map.on("click", (e) =>
+                            setSelection(e.latlng.lat, e.latlng.lng)
+                        );
+                    }
+                    // Seed from the current input values, if valid.
+                    const lat = parseFloat(latInput.value);
+                    const lon = parseFloat(lonInput.value);
+                    if (Number.isFinite(lat) && Number.isFinite(lon)) {
+                        setSelection(lat, lon);
+                        map.setView([lat, lon], 13);
+                    } else {
+                        selected = null;
+                        coordsEl.textContent = "Click the map to choose a point";
+                    }
+                    // Map was sized while hidden; recompute now that it's shown.
+                    setTimeout(() => map.invalidateSize(), 0);
+                    searchInput.focus();
+                }
+
+                function closePicker() {
+                    modal.classList.remove("open");
+                }
+
+                function usePicker() {
+                    if (selected) {
+                        latInput.value = selected.lat.toFixed(5);
+                        lonInput.value = selected.lon.toFixed(5);
+                        // Let any listeners (preview, presets) react to the change.
+                        latInput.dispatchEvent(
+                            new Event("change", { bubbles: true })
+                        );
+                        lonInput.dispatchEvent(
+                            new Event("change", { bubbles: true })
+                        );
+                    }
+                    closePicker();
+                }
+
+                async function search() {
+                    const q = searchInput.value.trim();
+                    if (!q) return;
+                    coordsEl.textContent = "Searching…";
+                    try {
+                        const res = await fetch(
+                            "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" +
+                                encodeURIComponent(q),
+                            { headers: { Accept: "application/json" } }
+                        );
+                        const hits = await res.json();
+                        if (hits && hits.length) {
+                            const lat = parseFloat(hits[0].lat);
+                            const lon = parseFloat(hits[0].lon);
+                            setSelection(lat, lon);
+                            map.setView([lat, lon], 13);
+                        } else {
+                            coordsEl.textContent = "No match for “" + q + "”";
+                        }
+                    } catch (err) {
+                        coordsEl.textContent = "Search failed (network).";
+                    }
+                }
+
+                document
+                    .getElementById("mapPickerBtn")
+                    .addEventListener("click", openPicker);
+                document
+                    .getElementById("mapPickerClose")
+                    .addEventListener("click", closePicker);
+                document
+                    .getElementById("mapPickerCancel")
+                    .addEventListener("click", closePicker);
+                document
+                    .getElementById("mapPickerUse")
+                    .addEventListener("click", usePicker);
+                document
+                    .getElementById("mapPickerSearchBtn")
+                    .addEventListener("click", search);
+                searchInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        search();
+                    }
+                });
+                modal.addEventListener("click", (e) => {
+                    if (e.target === modal) closePicker();
+                });
+                document.addEventListener("keydown", (e) => {
+                    if (e.key === "Escape" && modal.classList.contains("open"))
+                        closePicker();
+                });
+            })();
+
+            // Draw the az/alt grid and the crop guide lines once on load so
+            // the preview has a usable backdrop before the first capture.
+            drawPreviewGrid();
+            drawHorizonOverlay();
+        </script>
+    </body>
+</html>
